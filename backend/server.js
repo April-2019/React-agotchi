@@ -7,19 +7,127 @@ const Pet = require('./models/Pet.js')
 const Food = require('./models/Food.js')
 const Health = require('./models/Health.js')
 const Toy = require('./models/Toy.js')
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const app = express()
 app.use(bodyParser.json())
+
+const SECRET = "secret"
+
+
+function getToken(req) {
+    return req.headers.token;
+}
+
+function isAdmin(userId) {
+    return false;//TODO:fixme
+}
+
+
+//-------------------------------------------
+// Authentication and authorization fundamental
+//-------------------------------------------
+
+app.post('/users', function(req,res) {
+  bcrypt.hash(req.body.password, 10, function(err,hash)
+  {
+    if(err){
+      return res.status(500).json({error:"error creating hash"});
+    } else {
+      const user = new User({
+        name: req.body.name,
+        passwordhash: hash,
+        money: 0
+      });
+      user.save().then(
+        function(result) {
+          res.status(200).json({success:'New user created'});
+        }
+      ).catch( error => {
+        res.status(500).json({error:"error creating user"});
+      });
+    }
+  });
+});
+
+app.post('/users/login',function(req,res) {
+  User.findAll({where: {name:req.body.name}})
+  .then(
+    function(user) {
+      bcrypt.compare(req.body.password, user[0].dataValues.passwordhash, 
+        function(err,result) {
+          if(err) {
+            return res.status(401).json({failed:'Unauthorized Access'});
+          }
+
+          if(result) {
+            const token = jwt.sign({
+              name:user[0].dataValues.name,
+              id:user[0].dataValues.id  //////////////////////////////////////////////////
+            }, SECRET, /// SET SECRET ENV VARIABLE **********************
+            { expiresIn: '2h' }); //////////////////////////////////////////
+            return res.status(200).json({success:'Approved',token:token});
+          }
+          return res.status(401).json({failed:'Unauthorized Access'});
+        }
+      );
+    }
+  ).catch(error => {
+    res.status(500).json({error:error});
+  });
+});
+
+
+
+function authorizeUser(req,res,successCallback) {
+    jwt.verify(getToken(req),SECRET,
+      (err,results) => {
+          if(err) {
+            res.status(401).json({failed:'Unauthorized Access'})
+          } else {
+              if(isAdmin(req.params.id) || (parseInt(req.params.id)===parseInt(results.id))) {
+                  successCallback();
+              } else {
+                res.status(401).json({failed:'Unauthorized Access'})
+              }
+          }
+    });
+}
+
+function authorizeAdmin(req,res,successCallback) {
+    jwt.verify(getToken(req),SECRET,
+      (err,results) => {
+          if(err) {
+            res.status(401).json({failed:'Unauthorized Access'})
+          } else {
+              if(isAdmin(req.params.id)) {
+                  successCallback();
+              } else {
+                res.status(401).json({failed:'Unauthorized Access'})
+              }
+          }
+    });
+}
+
+
 //-------------------------------------------
 //Get request methods for ALL of a model
+// TODO: authorized these only for admin!!!!
 //-------------------------------------------
 
 
 app.get('/users', (req, res) => {
-    User.findAll()
-    .then(user => res.json(user))
+    authorizeAdmin(req,res, () => {
+        User.findAll()
+        .then(user => res.json(user))
+    });
+    
 })
 app.get('/pets', (req, res) => {
+    //console.log(req.headers.token)
+    //jwt.verify(req.headers.token,"secret",(err,res) => {console.log(res)})
     Pet.findAll()
     .then(pet => res.json(pet))
 })
@@ -36,17 +144,22 @@ app.get('/toys', (req, res) => {
     .then(toy => res.json(toy))
 })
 
+
+
 //--------------------------------------
 //Get request methods for ONE model
+// TODO: authorize resource for admin or belonging to logged-in user
 //--------------------------------------
 
 
 app.get('/users/:id', (req, res) => {
-    // eval(pry.it)
-    User.findByPk(req.params.id)
-    .then(user => res.json(user))
-
+    authorizeUser(req,res, () => {
+        User.findByPk(req.params.id)
+        .then(user => res.json(user))
+    });
 })
+
+
 app.get('/pets/:id', (req, res) => {
     // eval(pry.it)
     Pet.findByPk(req.params.id)
@@ -77,15 +190,9 @@ app.get('/toys/:id', (req, res) => {
 
 //-----------------
 //Post to API (!!! Persisting Data !!!)
+// todo: can only post if logged in, user_id always equal to id of logged in user
 //-----------------
 
-
-
-// app.post('/users', async (req, res) => {
-//     // eval(pry.it)
-//     let user = await User.create(req.body)
-//     res.json(user)
-// })
 app.post('/pets', async (req, res) => {
     // eval(pry.it)
     let pet = await Pet.create(req.body)
@@ -109,6 +216,7 @@ app.post('/toys', async (req, res) => {
 
 //----------------------------------------------
 // Updating API (!!! Persisting Data !!!)
+// TODO: only authorize if it belongs to the user logged in (or admin)
 //----------------------------------------------
 
 
@@ -126,6 +234,7 @@ app.patch('/pets/:id', async (req, resp) => {
 
 //---------------------------------------------
 //Delete info from API (CANNOT DELETE PET!!!)
+// TODO: only authorize of admin or belongs to the user logged in
 //---------------------------------------------
 
 
