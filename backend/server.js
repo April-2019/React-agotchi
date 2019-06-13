@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express')
 
 const bodyParser = require('body-parser')
@@ -7,6 +8,8 @@ const Pet = require('./models/Pet.js')
 const Food = require('./models/Food.js')
 const Health = require('./models/Health.js')
 const Toy = require('./models/Toy.js')
+
+const usr = require('./routes/user.route');
 
 const app = express()
 app.use(bodyParser.json())
@@ -32,6 +35,7 @@ app.get('/toy', (req, res) => {
     Toy.findAll()
     .then(toy => res.json(toy))
 })
+app.use('/user',usr);
 const port = 8000
 
 app.listen(port, () => {console.log("I am listening at " + port)})
