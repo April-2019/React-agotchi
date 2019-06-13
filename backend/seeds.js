@@ -29,7 +29,8 @@ const pets = [
         "type": "pikachu",
         "user_id": 1,
         "hunger": 5,
-        "stage": 2
+        "stage": 2,
+        "epitaph": ""
     }
 ]
 
