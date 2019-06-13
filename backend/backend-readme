@@ -1,0 +1,10 @@
+Small reminders
+
+-Pets are NOT supposed to be deleted. They persist forever
+    This is because while a pet dies, they never leave our hearts
+
+-To run the api, make sure you are in the backend directory in terminal and run the following command:
+    ``` npm run dev ```
+    !!! IF YOU ARE NOT IN BACKEND THIS WILL NOT WORK !!!
+-Any questions are free to be thrown my way
+    -Nikki
