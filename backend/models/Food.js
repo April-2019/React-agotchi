@@ -10,12 +10,18 @@ const BOOLEAN = Sequelize.BOOLEAN
 
 
 
-const sequelize = new Sequelize({
+// const sequelize = new Sequelize({
+//     dialect: 'postgres',
+//     storage: './database.postgres'
+// })
+const sequelize = new Sequelize('reactagotchi','postgres','abcdef',
+{
     dialect: 'postgres',
-    storage: './database.postgres'
+    host: 'localhost'
 })
 
-const Food = sequelize.define('user',{
+
+const Food = sequelize.define('food',{
     name: {
         type: STRING,
     },

@@ -9,12 +9,18 @@ const INTEGER = Sequelize.INTEGER
 
 
 
-const sequelize = new Sequelize({
+// const sequelize = new Sequelize({
+//     dialect: 'postgres',
+//     storage: './database.postgres'
+// })
+const sequelize = new Sequelize('reactagotchi','postgres','abcdef',
+{
     dialect: 'postgres',
-    storage: './database.postgres'
+    host: 'localhost'
 })
 
-const Pet = sequelize.define('user',{
+
+const Pet = sequelize.define('pet',{
     name: {
         type: STRING,
     },

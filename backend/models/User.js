@@ -9,10 +9,17 @@ const INTEGER = Sequelize.INTEGER
 
 
 
-const sequelize = new Sequelize({
+// const sequelize = new Sequelize({
+//     dialect: 'postgres',
+//     storage: './database.postgres'
+// })
+const sequelize = new Sequelize('reactagotchi','postgres','abcdef',
+{
     dialect: 'postgres',
-    storage: './database.postgres'
+    host: 'localhost'
 })
+
+
 
 const User = sequelize.define('user',{
     name: {

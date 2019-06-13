@@ -9,12 +9,18 @@ const INTEGER = Sequelize.INTEGER
 
 
 
-const sequelize = new Sequelize({
+// const sequelize = new Sequelize({
+//     dialect: 'postgres',
+//     storage: './database.postgres'
+// })
+const sequelize = new Sequelize('reactagotchi','postgres','abcdef',
+{
     dialect: 'postgres',
-    storage: './database.postgres'
+    host: 'localhost'
 })
 
-const Health = sequelize.define('user',{
+
+const Toy = sequelize.define('toy',{
     name: {
         type: STRING,
     },
@@ -35,5 +41,5 @@ const Health = sequelize.define('user',{
 })
 
 
-module.exports = Health
+module.exports = Toy
 sequelize.sync()
