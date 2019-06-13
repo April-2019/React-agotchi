@@ -44,6 +44,9 @@ const Pet = sequelize.define('pet',{
     },
     user_id:{
         type: INTEGER
+    },
+    epitaph:{
+        type: STRING
     }
 })
 module.exports = Pet

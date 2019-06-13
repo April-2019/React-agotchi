@@ -25,11 +25,7 @@ const User = sequelize.define('user',{
     name: {
         type: STRING,
     },
-    hash: {
-        type: STRING,
-
-    },
-    salt: {
+    passwordhash: {
         type: STRING,
     },
     money: {
