@@ -6,6 +6,7 @@ const bcrpyt = require('bcrypt')
 
 const STRING = Sequelize.STRING
 const INTEGER = Sequelize.INTEGER
+const BOOLEAN = Sequelize.BOOLEAN
 
 
 
@@ -30,8 +31,10 @@ const User = sequelize.define('user',{
     },
     money: {
         type: INTEGER
+    },
+    admin: {
+        type: BOOLEAN
     }
-
 
 })
 
