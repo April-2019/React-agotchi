@@ -1,20 +1,25 @@
 import React from 'react'
 import Login from './components/Login'
+import Home from './components/Home'
 
-export default class App extends Component {
-    constructor() {
-        super()
+export default class App extends React.Component {
+    state = {
+        loggedIn: false
     }
 
-    componentDidMount() {
-        
+    fetchUserInfo = () => {
+
+    }
+
+    register = () => {
+        console.log()
     }
 
     render() {
         return(
             <div>
-                <img></img>
-                <Login />
+                <h1>Hello</h1>
+                {this.state.loggedIn?<Home />:<Login register={this.register}/>}
             </div>
         )
     }

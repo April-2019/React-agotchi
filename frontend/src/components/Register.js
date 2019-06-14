@@ -1,26 +1,27 @@
 import React from 'react'
 import {Form, Container, Col, Button} from 'react-bootstrap'
 
-const Register = () => {
+const Register = (props) => {
   return (
     <Container>
       <Form>
         <Form.Group controlId='formRegisterUsername'>
-          <Form.label>Username</Form.label>
+          <Form.Label>Username</Form.Label>
           <Form.Control type='text' placeholder='Enter Username'></Form.Control>
-          <Form.text>Please enter your username here</Form.text>
+          <Form.Text>Please enter your username here</Form.Text>
         </Form.Group>
         <Form.Group controlId='formRegisterPassword'>
-          <Form.label>Password</Form.label>
+          <Form.Label>Password</Form.Label>
           <Form.Control type='password' placeholder='Enter Password'></Form.Control>
-          <Form.text>Please enter your password here</Form.text>
+          <Form.Text>Please enter your password here</Form.Text>
         </Form.Group>
         <Form.Group controlId='formRegisterReenterPassword'>
-          <Form.label>Re-enter Password</Form.label>
+          <Form.Label>Re-enter Password</Form.Label>
           <Form.Control type='password' placeholder='Re-enter Password'></Form.Control>
-          <Form.text>Please Re-enter your password here</Form.text>
+          <Form.Text>Please Re-enter your password here</Form.Text>
         </Form.Group>
-        <Button variant="primary">Register</Button>
+        <Button variant="outline-primary" type='submit'>Register</Button>
+        <Button variant="outline-secondary" onClick={() => props.goBack()}>Back To Login</Button>
       </Form>
     </Container>
   )
