@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize')
 const bcrpyt = require('bcrypt')
+const User = require('./User.js')
 
 
 
@@ -19,26 +20,38 @@ const sequelize = new Sequelize('reactagotchi','postgres','abcdef',
     host: 'localhost'
 })
 
+const Model = Sequelize.Model
+class Toy extends Model {}
+Toy.init({
+    name: STRING,
+    price: INTEGER,
+    fun: INTEGER
+},{
+    sequelize,
+    modelName: 'toy'
+})
 
-const Toy = sequelize.define('toy',{
-    name: {
-        type: STRING,
-    },
+// Toy.belongsTo(User, {foreignKey: 'userId'})
 
-    price: {
-        type: INTEGER
-    },
+// const Toy = sequelize.define('toy',{
+//     name: {
+//         type: STRING,
+//     },
 
-    fun:{
-        type: INTEGER
-    },
+//     price: {
+//         type: INTEGER
+//     },
 
-    user_id:{
-        type: INTEGER
-    }
+//     fun:{
+//         type: INTEGER
+//     },
+
+//     // user_id:{
+//     //     type: INTEGER
+//     // }
     
 
-})
+// })
 
 
 module.exports = Toy
