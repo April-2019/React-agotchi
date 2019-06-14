@@ -14,9 +14,8 @@ Toy.sync()
 const users = [
     {
         "name": "S8n",
-        "salt": "$2b$10$AcYdJBiI0WhcfrpMyrmwXO",
-        "hash": "$2b$10$AcYdJBiI0WhcfrpMyrmwXOSrvcBR/NeJv8JeHzeuJ5S4XWODZQOKa",
-        "money": "1000"
+        "passwordhash": "$2b$10$AcYdJBiI0WhcfrpMyrmwXOSrvcBR/NeJv8JeHzeuJ5S4XWODZQOKa",
+        "money": 1000
     }
 ]
 

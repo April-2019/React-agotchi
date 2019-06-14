@@ -80,12 +80,17 @@ app.get('/toys/:id', (req, res) => {
 //-----------------
 
 
+// Turned off for the time being, DO NOT DELETE PLEASE~~~~~~
+app.post('/users', async (req, res) => {
+    // eval(pry.it)
+    let user = await User.create(req.body)
+    res.json(user)
+})
+// Turned off for the time being, DO NOT DELETE PLEASE~~~~~~
 
-// app.post('/users', async (req, res) => {
-//     // eval(pry.it)
-//     let user = await User.create(req.body)
-//     res.json(user)
-// })
+
+
+
 app.post('/pets', async (req, res) => {
     // eval(pry.it)
     let pet = await Pet.create(req.body)
