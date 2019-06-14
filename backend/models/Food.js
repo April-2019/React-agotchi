@@ -1,7 +1,6 @@
 const Sequelize = require('sequelize')
 const bcrpyt = require('bcrypt')
-
-
+const User = require('./User.js')
 
 
 const STRING = Sequelize.STRING
@@ -20,30 +19,44 @@ const sequelize = new Sequelize('reactagotchi','postgres','abcdef',
     host: 'localhost'
 })
 
+const Model = Sequelize.Model
+class Food extends Model {}
+Food.init({
+    name: STRING,
+    price: INTEGER,
+    filling: INTEGER,
+    healthy: BOOLEAN
+},{
+    sequelize,
+    modelName: 'food'
+})
 
-const Food = sequelize.define('food',{
-    name: {
-        type: STRING,
-    },
+// Food.belongsTo(User, {foreignKey: 'userId'})
 
-    price: {
-        type: INTEGER
-    },
 
-    filling:{
-        type: INTEGER
-    },
+// const Food = sequelize.define('food',{
+//     name: {
+//         type: STRING,
+//     },
 
-    healthy:{
-        type: BOOLEAN
-    },
+//     price: {
+//         type: INTEGER
+//     },
 
-    user_id:{
-        type: INTEGER
-    }
+//     filling:{
+//         type: INTEGER
+//     },
+
+//     healthy:{
+//         type: BOOLEAN
+//     },
+
+    // user_id:{
+    //     type: INTEGER
+    // }
     
 
-})
+
 
 module.exports = Food
 sequelize.sync()
