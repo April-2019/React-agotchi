@@ -1,7 +1,7 @@
 const express = require('express')
 
 const bodyParser = require('body-parser')
-// const pry = require('pry.js')
+const pry = require('pryjs')
 const User = require('./models/User.js')
 const Pet = require('./models/Pet.js')
 const Food = require('./models/Food.js')
