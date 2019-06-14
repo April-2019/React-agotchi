@@ -40,6 +40,12 @@ const users = [
         "passwordhash": "$2b$10$AcYdJBiI0WhcfrpMyrmwXOSrvcBR/NeJv8JeHzeuJ5S4XWODZQOKa",
         "money": 1000,
         "admin": false
+    },
+    {
+        "name": "Nikki",
+        "passwordhash": "$2b$10$AcYdJBiI0WhcfrpMyrmwXOSrvcBR/NeJv8JeHzeuJ5S4XWODZQOKa",
+        "money": 1000,
+        "admin": true
     }
 ]
 
