@@ -31,10 +31,11 @@ const User = sequelize.define('user',{
     },
     money: {
         type: INTEGER
-    },
-    admin: {
-        type: BOOLEAN
     }
+    //,
+    //admin: {
+    //    type: BOOLEAN
+    //}
 
 })
 
