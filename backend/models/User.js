@@ -57,6 +57,23 @@ User.init({
 //         type: BOOLEAN
 //     }
 
+
+//const User = sequelize.define('user',{
+//    name: {
+//        type: STRING,
+//    },
+//    passwordhash: {
+//        type: STRING,
+//    },
+//    money: {
+//        type: INTEGER
+//    }
+    //,
+    //admin: {
+    //    type: BOOLEAN
+    //}
+
+//})
 // })
 
 module.exports = User

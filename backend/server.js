@@ -14,6 +14,7 @@ const bcrypt = require('bcrypt');
 const app = express()
 app.use(bodyParser.json())
 
+
 //////////////////////////////////////////////////////
 // TODO: CATCH BLOCKS                               //
 //////////////////////////////////////////////////////
@@ -42,6 +43,8 @@ function isAdmin(userId) {
 // Authentication and authorization fundamental
 //-------------------------------------------
 
+
+
 app.post('/users', function(req,res) {
   bcrypt.hash(req.body.password, 10, function(err,hash)
   {
@@ -51,7 +54,8 @@ app.post('/users', function(req,res) {
       const user = new User({
         name: req.body.name,
         passwordhash: hash,
-        money: 0
+        money: 100,
+        admin: req.body.admin
       });
       user.save().then(
         function(result) {
@@ -87,7 +91,7 @@ app.post('/login',function(req,res) {
       );
     }
   ).catch(error => {
-    res.status(500).json({error:error});
+    res.status(500).json({error:"could not complete request"});
   });
 });
 
@@ -135,7 +139,10 @@ app.get('/users', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(user);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/pets', (req, res) => {
@@ -144,7 +151,10 @@ app.get('/pets', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(pet);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/foods', (req, res) => {
@@ -153,7 +163,10 @@ app.get('/foods', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(food);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 app.get('/healths', (req, res) => {
   Health.findAll()
@@ -161,7 +174,10 @@ app.get('/healths', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(health);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/toys', (req, res) => {
@@ -170,7 +186,10 @@ app.get('/toys', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(toy);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
@@ -185,7 +204,10 @@ app.get('/users/:id/pets', (req, res) => {
     authorizeUser(req,res,parseInt(req.params.id), () => {
       res.json(pet);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/users/:id/foods', (req, res) => {
@@ -194,15 +216,22 @@ app.get('/users/:id/foods', (req, res) => {
     authorizeUser(req,res,parseInt(req.params.id), () => {
       res.json(food);
     });
-  });
-})
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
+});
+
 app.get('/users/:id/healths', (req, res) => {
   Health.findAll({where:{user_id:req.params.id}})
   .then( health => {
     authorizeUser(req,res,parseInt(req.params.id), () => {
       res.json(health);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/users/:id/toys', (req, res) => {
@@ -211,7 +240,10 @@ app.get('/users/:id/toys', (req, res) => {
     authorizeUser(req,res,parseInt(req.params.id), () => {
       res.json(toy);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
@@ -225,7 +257,10 @@ app.get('/users/:id', (req, res) => {
   .then(user => {
     authorizeUser(req,res,parseInt(req.params.id),
       () => res.json(user) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
@@ -234,14 +269,20 @@ app.get('/pets/:id', (req, res) => {
   .then(pet => {
     authorizeUser(req,res,parseInt(pet["user_id"]),
       () => res.json(pet) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 app.get('/foods/:id', (req, res) => {
   Food.findByPk(req.params.id)
   .then(beans => {
     authorizeUser(req,res,parseInt(beans["user_id"]),
       () => res.json(beans) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/healths/:id', (req, res) => {
@@ -249,7 +290,10 @@ app.get('/healths/:id', (req, res) => {
   .then(health => {
     authorizeUser(req,res,parseInt(health["user_id"]),
       () => res.json(health) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/toys/:id', (req, res) => {
@@ -257,14 +301,16 @@ app.get('/toys/:id', (req, res) => {
   .then(toy => {
     authorizeUser(req,res,parseInt(toy["user_id"]),
       () => res.json(toy) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
 
 //-----------------
 //Post to API (!!! Persisting Data !!!)
-// todo: can only post if logged in, user_id always equal to id of logged in user
 //-----------------
 
 app.post('/pets', (req, res) => {
@@ -305,22 +351,38 @@ app.post('/toys', (req, res) => {
 //     resp.json(user)
 // })
 
-app.patch('/pets/:id', async (req, resp) => {
-    let pet = await Pet.findByPk(req.params.id)
+app.patch('/pets/:id', (req, resp) => {
+  Pet.findByPk(req.params.id)
+  .then( pet => {
     if(req.body["user_id"] && (parseInt(pet["user_id"]) !== parseInt(req.body["user_id"]))) {
       resp.json({"error":"invalid input"})
     } else {
       authorizeUser( req, resp, pet["user_id"],
-        async () => {
-          await pet.update(req.body)
-          resp.json(pet)
+        () => {
+          pet.update(req.body)
+          .then( () => resp.json(pet) )
+          .catch( () => resp.json({"error":"could not update pet"}) );
       });
     }
+  })
+  .catch(()=> resp.json({"error":"could not find pet"}));
+
+
+
+    // let pet = await (Pet.findByPk(req.params.id).catch(()=>{resp.json({"error":"could not find pet"})}));
+    // if(req.body["user_id"] && (parseInt(pet["user_id"]) !== parseInt(req.body["user_id"]))) {
+    //   resp.json({"error":"invalid input"})
+    // } else {
+    //   authorizeUser( req, resp, pet["user_id"],
+    //     async () => {
+    //       await pet.update(req.body)
+    //       resp.json(pet)
+    //   });
+    // }
 })
 
 //---------------------------------------------
 //Delete info from API (CANNOT DELETE PET!!!)
-// TODO: only authorize of admin or belongs to the user logged in
 //---------------------------------------------
 
 
