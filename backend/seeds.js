@@ -7,28 +7,28 @@ const Toy = require('./models/Toy.js')
 
 
 
-User.hasMany(Food, {as: 'food', onDelete: 'cascade', hooks: true})
-User.sync()
-User.hasMany(Pet, {as: 'pets', onDelete: 'cascade', hooks: true})
-User.sync()
-User.hasMany(Health, {as: 'health', onDelete: 'cascade', hooks: true})
-User.sync()
-User.hasMany(Toy, {as: 'toys', onDelete: 'cascade', hooks: true})
-User.sync()
+// User.hasMany(Food, {as: 'food', onDelete: 'cascade', hooks: true})
+// User.sync()
+// User.hasMany(Pet, {as: 'pets', onDelete: 'cascade', hooks: true})
+// User.sync()
+// User.hasMany(Health, {as: 'health', onDelete: 'cascade', hooks: true})
+// User.sync()
+// User.hasMany(Toy, {as: 'toys', onDelete: 'cascade', hooks: true})
+// User.sync()
 
 
 
-Toy.belongsTo(User, {foreignKey: 'userId'})
-Toy.sync()
+// Toy.belongsTo(User, {foreignKey: 'userId'})
+// Toy.sync()
 
-Health.belongsTo(User, {foreignKey: 'userId'})
-Health.sync()
+// Health.belongsTo(User, {foreignKey: 'userId'})
+// Health.sync()
 
-Food.belongsTo(User, {foreignKey: 'userId'})
-Food.sync()
+// Food.belongsTo(User, {foreignKey: 'userId'})
+// Food.sync()
 
-Pet.belongsTo(User, {foreignKey: 'userId'})
-Pet.sync()
+// Pet.belongsTo(User, {foreignKey: 'userId'})
+// Pet.sync()
 
 
 
@@ -40,6 +40,12 @@ const users = [
         "passwordhash": "$2b$10$AcYdJBiI0WhcfrpMyrmwXOSrvcBR/NeJv8JeHzeuJ5S4XWODZQOKa",
         "money": 1000,
         "admin": false
+    },
+    {
+        "name": "Nikki",
+        "passwordhash": "$2b$10$AcYdJBiI0WhcfrpMyrmwXOSrvcBR/NeJv8JeHzeuJ5S4XWODZQOKa",
+        "money": 1000,
+        "admin": true
     }
 ]
 

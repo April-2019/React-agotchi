@@ -31,8 +31,8 @@ Food.init({
     modelName: 'food'
 })
 
-// Food.belongsTo(User, {foreignKey: 'userId'})
-
+Food.belongsTo(User, {foreignKey: 'userId'})
+User.hasMany(Food, {as: 'food', onDelete: 'cascade', hooks: true})
 
 // const Food = sequelize.define('food',{
 //     name: {

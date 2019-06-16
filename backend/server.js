@@ -8,33 +8,48 @@ const Food = require('./models/Food.js')
 const Health = require('./models/Health.js')
 const Toy = require('./models/Toy.js')
 require('dotenv').config();
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+
+
 
 const app = express()
 app.use(bodyParser.json())
 
-//////////////////////////////////////////////////////
-// TODO: CATCH BLOCKS                               //
-//////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////
-// TODO: SECRET ENV VAR                             //
-//////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////
-// TODO: UPDATE USER PASSWORD                       //
-//////////////////////////////////////////////////////
-
-const SECRET = "secret"//TODO:FIXME
+const SECRET = process.env.SECRET
 
 
 function getToken(req) {
-    return req.headers.token;
+    if(req.headers.authorization) {
+      var arr = req.headers.authorization.split(" ");
+      if((arr.length===2) && (arr[0]==="Bearer")) {
+        return arr[1];
+      }
+    }
 }
 
-function isAdmin(userId) {
-    return false;//TODO:fixme
+async function isAdmin(userId) {
+  var admin = false;
+  await User.findByPk(userId)
+  .then(user => {
+    admin = user.admin;
+  })
+  .catch(() => {console.log("could not find user")});
+  return admin;
+}
+
+async function getId(name) {
+  var id = -1;
+  await User.findAll({where:{name:name}})
+  .then(
+    users => {
+      if(users.length > 0) {
+        id = users[0].id
+      }
+    }
+  ).catch( () => {console.log("could not find user")});
+  return id;
 }
 
 
@@ -42,16 +57,19 @@ function isAdmin(userId) {
 // Authentication and authorization fundamental
 //-------------------------------------------
 
+
+
 app.post('/users', function(req,res) {
-  bcrypt.hash(req.body.password, 10, function(err,hash)
+  bcrypt.hash(req.body.password, 10, async function(err,hash)
   {
     if(err){
       return res.status(500).json({error:"error creating hash"});
     } else {
-      const user = new User({
+      const user = await new User({
         name: req.body.name,
         passwordhash: hash,
-        money: 0
+        money: 100,
+        admin: false
       });
       user.save().then(
         function(result) {
@@ -64,11 +82,12 @@ app.post('/users', function(req,res) {
   });
 });
 
-app.post('/login',function(req,res) {
-  User.findAll({where: {name:req.body.name}})
+app.post('/login',async function(req,res) {
+  var id = await getId(req.body.name);
+  User.findByPk(id)
   .then(
     function(user) {
-      bcrypt.compare(req.body.password, user[0].dataValues.passwordhash, 
+      bcrypt.compare(req.body.password, user.passwordhash, 
         function(err,result) {
           if(err) {
             return res.status(401).json({failed:'Unauthorized Access'});
@@ -76,8 +95,8 @@ app.post('/login',function(req,res) {
 
           if(result) {
             const token = jwt.sign({
-              name:user[0].dataValues.name,
-              id:user[0].dataValues.id  //////////////////////////////////////////////////
+              name:user.name,
+              id:user.id                //////////////////////////////////////////////////
             }, SECRET,                  /// SET SECRET ENV VARIABLE //////////////////////
             { expiresIn: '2h' });       //////////////////////////////////////////////////
             return res.status(200).json({success:'Approved',token:token});
@@ -87,7 +106,40 @@ app.post('/login',function(req,res) {
       );
     }
   ).catch(error => {
-    res.status(500).json({error:error});
+    res.status(500).json({error:"could not complete request"});
+  });
+});
+
+// 1. authorize user via JWT token
+// 2. authorize user via "curent password" input box
+// 3. if both succeed, change the password
+app.patch('/users/:name', async function(req,res) {
+  var id = await getId(req.params.name);
+  User.findByPk(id)
+  .then(
+    user => authorizeUser(req,res,id,()=>{
+      bcrypt.compare(req.body.currentpassword, user.passwordhash,
+        (err,result) => {
+          if(err) {
+            return res.status(401).json({failed:'Unauthorized Access'});
+          }
+          if(result) {
+            bcrypt.hash(req.body.newpassword,10,(err,hash)=>{
+              if(err) {
+                return res.status(500).json({error:"error creating hash"});
+              } else {
+                return !!user.update({passwordhash:hash})
+                .then( () => res.json({success:"operation completed"}))
+                .catch(() => res.json({failed:"operation failed"}));
+              }
+            });
+          } else {
+            return res.status(401).json({failed:'Unauthorized Access'});
+          }
+      })
+    })
+  ).catch(() => {
+    res.json({error:"could not complete request"});
   });
 });
 
@@ -95,11 +147,12 @@ app.post('/login',function(req,res) {
 
 function authorizeUser(req,res,id,successCallback) {
     jwt.verify(getToken(req),SECRET,
-      (err,results) => {
+      async (err,results) => {
           if(err) {
             res.status(401).json({failed:'Unauthorized Access'})
           } else {
-              if(isAdmin(parseInt(results.id)) || (id===parseInt(results.id))) {
+              var admin = await isAdmin(parseInt(results.id));
+              if(admin || (id===parseInt(results.id))) {
                   successCallback();
               } else {
                 res.status(401).json({failed:'Unauthorized Access'})
@@ -110,11 +163,12 @@ function authorizeUser(req,res,id,successCallback) {
 
 function authorizeAdmin(req,res,successCallback) {
     jwt.verify(getToken(req),SECRET,
-      (err,results) => {
+      async (err,results) => {
           if(err) {
             res.status(401).json({failed:'Unauthorized Access'})
           } else {
-              if(isAdmin(parseInt(results.id))) {
+              var admin = await isAdmin(parseInt(results.id));
+              if(admin) {
                   successCallback();
               } else {
                 res.status(401).json({failed:'Unauthorized Access'})
@@ -131,11 +185,27 @@ function authorizeAdmin(req,res,successCallback) {
 
 app.get('/users', (req, res) => {
   User.findAll()
-  .then( user => {
+  .then( users => {
     authorizeAdmin(req,res, () => {
-      res.json(user);
+      res.json(
+        users.map(
+          user => {
+            return {
+              "id":user.id,
+              "name":user.name,
+              "money":user.money,
+              "admin":user.admin,
+              "createdAt":user.createdAt,
+              "updatedAt":user.updatedAt
+            };
+          }
+        )
+      );
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/pets', (req, res) => {
@@ -144,7 +214,10 @@ app.get('/pets', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(pet);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/foods', (req, res) => {
@@ -153,7 +226,10 @@ app.get('/foods', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(food);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 app.get('/healths', (req, res) => {
   Health.findAll()
@@ -161,7 +237,10 @@ app.get('/healths', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(health);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/toys', (req, res) => {
@@ -170,7 +249,10 @@ app.get('/toys', (req, res) => {
     authorizeAdmin(req,res, () => {
       res.json(toy);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
@@ -179,39 +261,56 @@ app.get('/toys', (req, res) => {
 //--------------------------------------
 
 
-app.get('/users/:id/pets', (req, res) => {
-  Pet.findAll({where:{user_id:req.params.id}})
+app.get('/users/:name/pets', async (req, res) => {
+  var userId = await getId(req.params.name);
+  Pet.findAll({where:{userId:userId}})
   .then( pet => {
-    authorizeUser(req,res,parseInt(req.params.id), () => {
+    authorizeUser(req,res,userId, () => {
       res.json(pet);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
-app.get('/users/:id/foods', (req, res) => {
-  Food.findAll({where:{user_id:req.params.id}})
+app.get('/users/:name/foods', async (req, res) => {
+  var userId = await getId(req.params.name);
+  Food.findAll({where:{userId:userId}})
   .then( food => {
-    authorizeUser(req,res,parseInt(req.params.id), () => {
+    authorizeUser(req,res,userId, () => {
       res.json(food);
     });
-  });
-})
-app.get('/users/:id/healths', (req, res) => {
-  Health.findAll({where:{user_id:req.params.id}})
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
+});
+
+app.get('/users/:name/healths', async (req, res) => {
+  var userId = await getId(req.params.name);
+  Health.findAll({where:{userId:userId}})
   .then( health => {
-    authorizeUser(req,res,parseInt(req.params.id), () => {
+    authorizeUser(req,res,userId, () => {
       res.json(health);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
-app.get('/users/:id/toys', (req, res) => {
-  Toy.findAll({where:{user_id:req.params.id}})
+app.get('/users/:name/toys', async (req, res) => {
+  var userId = await getId(req.params.name);
+  Toy.findAll({where:{userId:userId}})
   .then( toy => {
-    authorizeUser(req,res,parseInt(req.params.id), () => {
+    authorizeUser(req,res,userId, () => {
       res.json(toy);
     });
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
@@ -220,77 +319,129 @@ app.get('/users/:id/toys', (req, res) => {
 //--------------------------------------
 
 
-app.get('/users/:id', (req, res) => {
-  User.findByPk(req.params.id)
+app.get('/users/:name', async (req, res) => {
+  var userId = await getId(req.params.name);
+  User.findByPk(userId)
   .then(user => {
-    authorizeUser(req,res,parseInt(req.params.id),
-      () => res.json(user) )
-  });
+    authorizeUser(req,res,userId,
+      () => {
+        res.json({
+          "id":user.id,
+          "name":user.name,
+          "money":user.money,
+          "admin":user.admin,
+          "createdAt":user.createdAt,
+          "updatedAt":user.updatedAt
+        });
+    })
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
 app.get('/pets/:id', (req, res) => {
   Pet.findByPk(req.params.id)
   .then(pet => {
-    authorizeUser(req,res,parseInt(pet["user_id"]),
+    authorizeUser(req,res,parseInt(pet["userId"]),
       () => res.json(pet) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 app.get('/foods/:id', (req, res) => {
   Food.findByPk(req.params.id)
   .then(beans => {
-    authorizeUser(req,res,parseInt(beans["user_id"]),
+    authorizeUser(req,res,parseInt(beans["userId"]),
       () => res.json(beans) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/healths/:id', (req, res) => {
   Health.findByPk(req.params.id)
   .then(health => {
-    authorizeUser(req,res,parseInt(health["user_id"]),
+    authorizeUser(req,res,parseInt(health["userId"]),
       () => res.json(health) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 app.get('/toys/:id', (req, res) => {
   Toy.findByPk(req.params.id)
   .then(toy => {
-    authorizeUser(req,res,parseInt(toy["user_id"]),
+    authorizeUser(req,res,parseInt(toy["userId"]),
       () => res.json(toy) )
-  });
+  })
+  .catch(
+    () => { res.json({failed:"Could not complete request"}) }
+  );
 })
 
 
 
 //-----------------
 //Post to API (!!! Persisting Data !!!)
-// todo: can only post if logged in, user_id always equal to id of logged in user
 //-----------------
 
-app.post('/pets', (req, res) => {
-    authorizeUser(req,res,parseInt(req.body["user_id"]),async () => {
-      let pet = await Pet.create(req.body);
+app.post('/pets', async (req, res) => {
+  var userId = await getId(req.body["name"]);
+  authorizeUser(req,res,userId,async () => {
+    try {
+      let pet = await Pet.create(req.body.data);
+      let user = await User.findByPk(userId);
+      await pet.setUser(user);
       res.json(pet)
-    });
+    } catch (err) {
+      res.json({"error":"could not create pet"});
+    }
+  });
 })
 
-app.post('/foods', (req, res) => {
-  authorizeUser(req,res,parseInt(req.body["user_id"]),async () => {
-    let bean = await Food.create(req.body)
-    res.json(bean)
+app.post('/foods', async (req, res) => {
+  var userId = await getId(req.body["name"]);
+  authorizeUser(req,res,userId,async () => {
+    try {
+      let bean = await Food.create(req.body.data)
+      let user = await User.findByPk(userId);
+      await bean.setUser(user);
+      res.json(bean)
+    } catch(err) {
+      res.json({"error":"could not create food item"});
+    }
   }); 
 })
-app.post('/healths', (req, res) => {
-  authorizeUser(req,res,parseInt(req.body["user_id"]),async () => {
-    let health = await Health.create(req.body)
-    res.json(health)
+app.post('/healths', async (req, res) => {
+  var userId = await getId(req.body["name"]);
+  authorizeUser(req,res,userId,async () => {
+    try {
+      let health = await Health.create(req.body.data);
+      let user = await User.findByPk(userId);
+      await health.setUser(user);
+      res.json(health)
+    } catch (err) {
+      res.json({"error":"could not create health item"});
+    }
   });
     
 })
-app.post('/toys', (req, res) => {
-  authorizeUser(req,res,parseInt(req.body["user_id"]),async () => {
-    let toy = await Toy.create(req.body)
-    res.json(toy)
+app.post('/toys', async (req, res) => {
+  var userId = await getId(req.body["name"]);
+  authorizeUser(req,res,userId,async () => {
+    try {
+      let toy = await Toy.create(req.body.data);
+      let user = await User.findByPk(userId);
+      await toy.setUser(user);
+      res.json(toy)
+    } catch (err) {
+      res.json({"error":"could not create toy item"});
+    }
   });  
 })
 
@@ -299,70 +450,78 @@ app.post('/toys', (req, res) => {
 //----------------------------------------------
 
 
-// app.patch('/users/:id', async (req, resp) => {
-//     let user = await User.findByPk(req.params.id)
-//     await user.update(req.body)
-//     resp.json(user)
-// })
-
-app.patch('/pets/:id', async (req, resp) => {
-    let pet = await Pet.findByPk(req.params.id)
-    if(req.body["user_id"] && (parseInt(pet["user_id"]) !== parseInt(req.body["user_id"]))) {
+app.patch('/pets/:id', async(req, resp) => {
+  var userId = await getId(req.body.name);
+  Pet.findByPk(req.params.id)
+  .then( async pet => {
+    if(parseInt(pet["userId"]) !== userId) {
       resp.json({"error":"invalid input"})
     } else {
-      authorizeUser( req, resp, pet["user_id"],
-        async () => {
-          await pet.update(req.body)
-          resp.json(pet)
+      authorizeUser( req, resp, pet["userId"],
+        () => {
+          pet.update(req.body.data)
+          .then( () => resp.json(pet) )
+          .catch( () => resp.json({"error":"could not update pet"}) );
       });
     }
+  })
+  .catch(()=> resp.json({"error":"could not find pet"}));
 })
 
 //---------------------------------------------
 //Delete info from API (CANNOT DELETE PET!!!)
-// TODO: only authorize of admin or belongs to the user logged in
 //---------------------------------------------
 
 
-app.delete('/users/:id', async (req, res) => {
-  let user = await User.findByPk(req.params.id)
-  authorizeUser( req, res, req.params.id,
+app.delete('/users/:name', async (req, res) => {
+  var userId = await getId(req.params.name);
+  User.findByPk(userId)
+  .then(
+    user => authorizeUser(req,res,userId,
+      () => {
+        user.destroy();
+        res.json({"status":"success"});
+      }
+    )
+  ).catch(
+    () => res.json({"error":"could not delete user"})
+  );
+});
+
+app.delete('/foods/:id', (req, res) => {
+  Food.findByPk(req.params.id)
+  .then(
+    food => authorizeUser(req,res,food["userId"],
     () => {
-      user.destroy();
-  });
+      food.destroy();
+      res.json({"status":"success"});
+    })
+  ).catch(
+    () => res.json({"error":"could not delete food item"})
+  );
 })
 
-app.delete('/foods/:id', async (req, res) => {
-  let food = await Food.findByPk(req.params.id)
-  authorizeUser( req, res, food["user_id"],
+app.delete('/healths/:id', (req, res) => {
+  Health.findByPk(req.params.id)
+  .then( health =>
+    authorizeUser( req, res, health["userId"],
     () => {
-      food.destroy()
-  });
-})
-
-app.delete('/healths/:id', async (req, res) => {
-  let health = await Health.findByPk(req.params.id)
-  authorizeUser( req, res, health["user_id"],
-     () => {
-      health.destroy()
-  });
-    
+      health.destroy();
+      res.json({"status":"success"});
+    })
+  ).catch( () => res.json({"error":"could not delete health item"}) );
 })
 
 app.delete('/toys/:id', (req, res) => {
-  // let toy = await Food.findByPk(req.params.id)
-  // authorizeUser( req, res, toy["user_id"],
-  //   () => {
-  //     toy.destroy()
-  // });
   Toy.findByPk(req.params.id)
   .then(toy=>
-    authorizeUser( req, res, toy["user_id"],
+    authorizeUser( req, res, toy["userId"],
       () => {
         toy.destroy();
         res.json({"status":"success"});
     })
-  );
+  )
+  .catch( () => res.json({"error":"could not delete toy"}) );
 })
 
 
