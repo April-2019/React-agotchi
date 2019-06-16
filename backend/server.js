@@ -22,18 +22,12 @@ const cookieConfig = {
 
 const app = express()
 app.use(bodyParser.json())
+app.use(cors())
 app.use(cookieParser(process.env.COOKIESECRET));
 
 const SECRET = process.env.SECRET
 
-
 function getToken(req) {
-    // if(req.headers.authorization) {
-    //   var arr = req.headers.authorization.split(" ");
-    //   if((arr.length===2) && (arr[0]==="Bearer")) {
-    //     return arr[1];
-    //   }
-    // }
     return req.signedCookies.auth;
 }
 
@@ -71,7 +65,7 @@ async function getId(name) {
 // request format:
 // headers: {"Content-Type":"application/json"}
 // body: {"name":<username>,"password":"<password>"}
-app.post('/users',cors(), function(req,res) {
+app.post('/users', function(req,res) {
   bcrypt.hash(req.body.password, 10, async function(err,hash)
   {
     if(err){
@@ -99,11 +93,7 @@ app.post('/users',cors(), function(req,res) {
 // request format:
 // headers: {"Content-Type":"application/json"}
 // body: {"name":<username>,"password":"<password>"}
-// response: {"success":"Approved","token":"<JWT token>"}
-// For any request requiring authorization, use the following headers:
-// {"Content-Type":"application/json","Authorization":"Bearer <token>"}
-// API will auto-detect if user is an admin and authorize accordingly.
-app.post('/login',cors(),async function(req,res) {
+app.post('/login',async function(req,res) {
   var id = await getId(req.body.name);
   User.findByPk(id)
   .then(
@@ -132,7 +122,7 @@ app.post('/login',cors(),async function(req,res) {
   });
 });
 
-app.get("/loggedin",cors(),async function(req,res) {
+app.get("/loggedin",async function(req,res) {
   jwt.verify(getToken(req),SECRET,
   async (err,results) => {
       if(err) {
@@ -154,7 +144,7 @@ app.get("/loggedin",cors(),async function(req,res) {
 // request format:
 // headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
 // body: {"currentpassword":"<current password>", "newpassword":"<new password>"}
-app.patch('/users/:name',cors(), async function(req,res) {
+app.patch('/users/:name', async function(req,res) {
   var id = await getId(req.params.name);
   User.findByPk(id)
   .then(
@@ -221,13 +211,11 @@ function authorizeAdmin(req,res,successCallback) {
 
 //-------------------------------------------
 //Get request methods for ALL of a model
-// request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
-// also the user must be an admin or request will fail
+// the user must be an admin or request will fail
 //-------------------------------------------
 
 
-app.get('/users',cors(), (req, res) => {
+app.get('/users', (req, res) => {
   User.findAll()
   .then( users => {
     authorizeAdmin(req,res, () => {
@@ -252,7 +240,7 @@ app.get('/users',cors(), (req, res) => {
   );
 })
 
-app.get('/pets',cors(), (req, res) => {
+app.get('/pets', (req, res) => {
   Pet.findAll()
   .then( pet => {
     authorizeAdmin(req,res, () => {
@@ -264,7 +252,7 @@ app.get('/pets',cors(), (req, res) => {
   );
 })
 
-app.get('/foods',cors(), (req, res) => {
+app.get('/foods', (req, res) => {
   Food.findAll()
   .then( food => {
     authorizeAdmin(req,res, () => {
@@ -275,7 +263,7 @@ app.get('/foods',cors(), (req, res) => {
     () => { res.json({failed:"Could not complete request"}) }
   );
 })
-app.get('/healths',cors(), (req, res) => {
+app.get('/healths', (req, res) => {
   Health.findAll()
   .then( health => {
     authorizeAdmin(req,res, () => {
@@ -287,7 +275,7 @@ app.get('/healths',cors(), (req, res) => {
   );
 })
 
-app.get('/toys',cors(), (req, res) => {
+app.get('/toys', (req, res) => {
   Toy.findAll()
   .then( toy => {
     authorizeAdmin(req,res, () => {
@@ -302,13 +290,11 @@ app.get('/toys',cors(), (req, res) => {
 
 //--------------------------------------
 // Get request methods for one user's records
-// request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
 // Either user must be admin, or user must be the owner of the requested resource
 //--------------------------------------
 
 
-app.get('/users/:name/pets',cors(), async (req, res) => {
+app.get('/users/:name/pets', async (req, res) => {
   var userId = await getId(req.params.name);
   Pet.findAll({where:{userId:userId}})
   .then( pet => {
@@ -321,7 +307,7 @@ app.get('/users/:name/pets',cors(), async (req, res) => {
   );
 })
 
-app.get('/users/:name/foods',cors(), async (req, res) => {
+app.get('/users/:name/foods', async (req, res) => {
   var userId = await getId(req.params.name);
   Food.findAll({where:{userId:userId}})
   .then( food => {
@@ -334,7 +320,7 @@ app.get('/users/:name/foods',cors(), async (req, res) => {
   );
 });
 
-app.get('/users/:name/healths',cors(), async (req, res) => {
+app.get('/users/:name/healths', async (req, res) => {
   var userId = await getId(req.params.name);
   Health.findAll({where:{userId:userId}})
   .then( health => {
@@ -347,7 +333,7 @@ app.get('/users/:name/healths',cors(), async (req, res) => {
   );
 })
 
-app.get('/users/:name/toys',cors(), async (req, res) => {
+app.get('/users/:name/toys', async (req, res) => {
   var userId = await getId(req.params.name);
   Toy.findAll({where:{userId:userId}})
   .then( toy => {
@@ -363,13 +349,11 @@ app.get('/users/:name/toys',cors(), async (req, res) => {
 
 //--------------------------------------
 // Get request methods for ONE record
-// request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
 // Either user must be admin, or user must be the owner of the requested resource
 //--------------------------------------
 
 
-app.get('/users/:name', cors(),async (req, res) => {
+app.get('/users/:name', async (req, res) => {
   var userId = await getId(req.params.name);
   User.findByPk(userId)
   .then(user => {
@@ -391,7 +375,7 @@ app.get('/users/:name', cors(),async (req, res) => {
 })
 
 
-app.get('/pets/:id',cors(), (req, res) => {
+app.get('/pets/:id', (req, res) => {
   Pet.findByPk(req.params.id)
   .then(pet => {
     authorizeUser(req,res,parseInt(pet["userId"]),
@@ -401,7 +385,7 @@ app.get('/pets/:id',cors(), (req, res) => {
     () => { res.json({failed:"Could not complete request"}) }
   );
 })
-app.get('/foods/:id',cors(), (req, res) => {
+app.get('/foods/:id', (req, res) => {
   Food.findByPk(req.params.id)
   .then(beans => {
     authorizeUser(req,res,parseInt(beans["userId"]),
@@ -412,7 +396,7 @@ app.get('/foods/:id',cors(), (req, res) => {
   );
 })
 
-app.get('/healths/:id',cors(), (req, res) => {
+app.get('/healths/:id', (req, res) => {
   Health.findByPk(req.params.id)
   .then(health => {
     authorizeUser(req,res,parseInt(health["userId"]),
@@ -423,7 +407,7 @@ app.get('/healths/:id',cors(), (req, res) => {
   );
 })
 
-app.get('/toys/:id', cors(),(req, res) => {
+app.get('/toys/:id', (req, res) => {
   Toy.findByPk(req.params.id)
   .then(toy => {
     authorizeUser(req,res,parseInt(toy["userId"]),
@@ -439,15 +423,15 @@ app.get('/toys/:id', cors(),(req, res) => {
 //-----------------
 //Post to API (!!! Persisting Data !!!)
 // Request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // body: {"name":"<username>", 
 //    "data": { <created resource key/value pairs> } } 
 // Note that the username must be the currently logged in user (i.e.
 // coincide with the JWT token), and will become the owner of the
-// created resource. Please don't use a userId key-value in the body.data
+// created resource.
 //-----------------
 
-app.post('/pets',cors(), async (req, res) => {
+app.post('/pets', async (req, res) => {
   var userId = await getId(req.body["name"]);
   authorizeUser(req,res,userId,async () => {
     try {
@@ -461,7 +445,7 @@ app.post('/pets',cors(), async (req, res) => {
   });
 })
 
-app.post('/foods', cors(),async (req, res) => {
+app.post('/foods', async (req, res) => {
   var userId = await getId(req.body["name"]);
   authorizeUser(req,res,userId,async () => {
     try {
@@ -474,7 +458,7 @@ app.post('/foods', cors(),async (req, res) => {
     }
   }); 
 })
-app.post('/healths',cors(), async (req, res) => {
+app.post('/healths',async (req, res) => {
   var userId = await getId(req.body["name"]);
   authorizeUser(req,res,userId,async () => {
     try {
@@ -488,7 +472,7 @@ app.post('/healths',cors(), async (req, res) => {
   });
     
 })
-app.post('/toys',cors(), async (req, res) => {
+app.post('/toys', async (req, res) => {
   var userId = await getId(req.body["name"]);
   authorizeUser(req,res,userId,async () => {
     try {
@@ -509,12 +493,12 @@ app.post('/toys',cors(), async (req, res) => {
 
 // Update a pet
 // Request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // body: {"name":"<username>", 
 //    "data": { <updated pet key/value pairs> } } 
 // The username must be the currently logged in user (coincides with the
 // JWT token), and must be the owner of the pet.
-app.patch('/pets/:id',cors(), async(req, resp) => {
+app.patch('/pets/:id', async(req, resp) => {
   var userId = await getId(req.body.name);
   Pet.findByPk(req.params.id)
   .then( async pet => {
@@ -536,12 +520,12 @@ app.patch('/pets/:id',cors(), async(req, resp) => {
 //---------------------------------------------
 //Delete info from API (CANNOT DELETE PET!!!)
 // request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // Either user must be admin, or user must be the owner of the requested resource
 //---------------------------------------------
 
 
-app.delete('/users/:name',cors(), async (req, res) => {
+app.delete('/users/:name', async (req, res) => {
   var userId = await getId(req.params.name);
   User.findByPk(userId)
   .then(
@@ -556,7 +540,7 @@ app.delete('/users/:name',cors(), async (req, res) => {
   );
 });
 
-app.delete('/foods/:id',cors(), (req, res) => {
+app.delete('/foods/:id', (req, res) => {
   Food.findByPk(req.params.id)
   .then(
     food => authorizeUser(req,res,food["userId"],
@@ -569,7 +553,7 @@ app.delete('/foods/:id',cors(), (req, res) => {
   );
 })
 
-app.delete('/healths/:id',cors(), (req, res) => {
+app.delete('/healths/:id', (req, res) => {
   Health.findByPk(req.params.id)
   .then( health =>
     authorizeUser( req, res, health["userId"],
@@ -580,7 +564,7 @@ app.delete('/healths/:id',cors(), (req, res) => {
   ).catch( () => res.json({"error":"could not delete health item"}) );
 })
 
-app.delete('/toys/:id',cors(), (req, res) => {
+app.delete('/toys/:id',(req, res) => {
   Toy.findByPk(req.params.id)
   .then(toy=>
     authorizeUser( req, res, toy["userId"],
