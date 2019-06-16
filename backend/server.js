@@ -8,6 +8,7 @@ const Food = require('./models/Food.js')
 const Health = require('./models/Health.js')
 const Toy = require('./models/Toy.js')
 require('dotenv').config();
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -16,11 +17,7 @@ const bcrypt = require('bcrypt');
 const app = express()
 app.use(bodyParser.json())
 
-//////////////////////////////////////////////////////
-// TODO: SECRET ENV VAR                             //
-//////////////////////////////////////////////////////
-
-const SECRET = "secret"//TODO:FIXME
+const SECRET = process.env.SECRET
 
 
 function getToken(req) {
