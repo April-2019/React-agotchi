@@ -1,7 +1,15 @@
 import React from 'react'
 import {Form, Container, Col, Button, Row} from 'react-bootstrap'
 
-const Register = (props) => {
+class Register extends React.Component {
+  componentDidMount() {
+    this.props.loggedIn(
+        () => this.props.history.push("/home"),
+        () => {}
+    );
+  }
+
+  render() {
   return (
     <Container>
       <Form onSubmit={(e) => this.props.login(e)}>
@@ -42,11 +50,12 @@ const Register = (props) => {
           </Row>
           <Row className="justify-content-center">
           <Button variant="outline-primary" type='submit'>Register</Button>
-          <Button variant="outline-secondary" onClick={() => props.goBack()}>Back To Login</Button>
+          <Button variant="outline-secondary" onClick={() => this.props.history.push("/")}>Back To Login</Button>
           </Row>
         </div>
       </Form>
     </Container>
   )
+  }
 }
 export default Register
