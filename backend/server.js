@@ -8,27 +8,42 @@ const Food = require('./models/Food.js')
 const Health = require('./models/Health.js')
 const Toy = require('./models/Toy.js')
 require('dotenv').config();
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 
-const cookieConfig = {
-  httpOnly: true,
-  maxAge: 7200000,
-  signed: true
-};
+// const cookieConfig = {
+//   httpOnly: true,
+//   maxAge: 7200000,
+//   signed: true
+// };
 
 
 const app = express()
 app.use(bodyParser.json())
-app.use(cors())
-app.use(cookieParser(process.env.COOKIESECRET));
+
+//app.use(cookieParser(process.env.COOKIESECRET));
+
+const corsOptions = {
+  "origin": "http://localhost:3000",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "preflightContinue": true, // false
+  "optionsSuccessStatus": 200, // 204
+  "credentials":true,
+  "allowedHeaders":"Content-Type,*"
+}
+app.use(cors(corsOptions))
 
 const SECRET = process.env.SECRET
 
 function getToken(req) {
-    return req.signedCookies.auth;
+    //return req.signedCookies.authorization;
+    if(req.headers.authorization) {
+      if(req.headers.authorization.split(" ").length > 1) {
+        return req.headers.authorization.split(" ")[1];
+      }
+    }
 }
 
 async function isAdmin(userId) {
@@ -93,7 +108,7 @@ app.post('/users', function(req,res) {
 // request format:
 // headers: {"Content-Type":"application/json"}
 // body: {"name":<username>,"password":"<password>"}
-app.post('/login',async function(req,res) {
+app.post('/login', cors(corsOptions), async function(req,res) {
   var id = await getId(req.body.name);
   User.findByPk(id)
   .then(
@@ -110,8 +125,8 @@ app.post('/login',async function(req,res) {
               id:user.id
             }, SECRET,
             { expiresIn: '2h' });
-            res.cookie('auth',token,cookieConfig);
-            return res.status(200).json({success:'Approved'/*,token:token*/});
+            //res.cookie('Authorization',token,cookieConfig);
+            return res.status(200).json({success:'Approved',token:token});
           }
           return res.status(401).json({failed:'Unauthorized Access'});
         }
@@ -122,7 +137,7 @@ app.post('/login',async function(req,res) {
   });
 });
 
-app.get("/loggedin",async function(req,res) {
+app.get("/loggedin",cors(corsOptions),async function(req,res) {
   jwt.verify(getToken(req),SECRET,
   async (err,results) => {
       if(err) {
@@ -142,7 +157,7 @@ app.get("/loggedin",async function(req,res) {
 // 2. authorize user via "curent password" input box
 // 3. if both succeed, change the password
 // request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // body: {"currentpassword":"<current password>", "newpassword":"<new password>"}
 app.patch('/users/:name', async function(req,res) {
   var id = await getId(req.params.name);
