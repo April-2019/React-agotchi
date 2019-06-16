@@ -1,0 +1,16 @@
+.homepage_background {
+    background: url('./images/login_background_pic.jpg') no-repeat center fixed;
+    /* -webkit-background-size: cover; */
+    /* -moz-background-size: cover; */
+    /* -o-backgeoundsize: cover; */
+    background-size: cover
+}
+
+.login_background {
+    background: url('./images/login.png') no-repeat center
+}
+
+.register_background {
+    background: url('./images/register.jpg') no-repeat center;
+}
+
