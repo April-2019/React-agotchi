@@ -1,9 +1,5 @@
 const Sequelize = require('sequelize')
 const bcrpyt = require('bcrypt')
-const Pet = require('./Pet.js')
-const Food = require('./Food.js')
-const Health = require('./Health.js')
-const Toy = require('./Toy.js')
 
 
 
@@ -35,6 +31,8 @@ User.init({
     sequelize,
     modelName: 'user'
 });
+
+
 
 // User.hasMany(Food, {as: 'food', onDelete: 'cascade', hooks: true})
 // User.hasMany(Pet, {as: 'pets', onDelete: 'cascade', hooks: true})

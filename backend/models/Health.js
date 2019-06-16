@@ -31,8 +31,8 @@ Health.init({
     modelName: 'health'
 })
 
-// Health.belongsTo(User, {foreignKey: 'userId'})
-
+Health.belongsTo(User, {foreignKey: 'userId'})
+User.hasMany(Health, {as: 'health', onDelete: 'cascade', hooks: true})
 
 // const Health = sequelize.define('health',{
 //     name: {
