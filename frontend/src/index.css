@@ -1,4 +1,4 @@
-.homeoage_background {
+.homepage_background {
     background: url('./images/login_background_pic.jpg') no-repeat center fixed;
     /* -webkit-background-size: cover; */
     /* -moz-background-size: cover; */
@@ -10,6 +10,7 @@
     background: url('./images/login.png') no-repeat center
 }
 
-.login_form {
-    display: inline-block;
+.register_background {
+    background: url('./images/register.jpg') no-repeat center;
 }
+
