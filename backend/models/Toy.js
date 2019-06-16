@@ -31,7 +31,8 @@ Toy.init({
     modelName: 'toy'
 })
 
-// Toy.belongsTo(User, {foreignKey: 'userId'})
+Toy.belongsTo(User, {foreignKey: 'userId'})
+User.hasMany(Toy, {as: 'toys', onDelete: 'cascade', hooks: true})
 
 // const Toy = sequelize.define('toy',{
 //     name: {
