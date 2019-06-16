@@ -8,6 +8,7 @@ const Food = require('./models/Food.js')
 const Health = require('./models/Health.js')
 const Toy = require('./models/Toy.js')
 require('dotenv').config();
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -16,15 +17,7 @@ const bcrypt = require('bcrypt');
 const app = express()
 app.use(bodyParser.json())
 
-//////////////////////////////////////////////////////
-// TODO: SECRET ENV VAR                             //
-//////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////
-// TODO: UPDATE USER PASSWORD                       //
-//////////////////////////////////////////////////////
-
-const SECRET = "secret"//TODO:FIXME
+const SECRET = process.env.SECRET
 
 
 function getToken(req) {
@@ -67,12 +60,12 @@ async function getId(name) {
 
 
 app.post('/users', function(req,res) {
-  bcrypt.hash(req.body.password, 10, function(err,hash)
+  bcrypt.hash(req.body.password, 10, async function(err,hash)
   {
     if(err){
       return res.status(500).json({error:"error creating hash"});
     } else {
-      const user = new User({
+      const user = await new User({
         name: req.body.name,
         passwordhash: hash,
         money: 100,
@@ -114,6 +107,39 @@ app.post('/login',async function(req,res) {
     }
   ).catch(error => {
     res.status(500).json({error:"could not complete request"});
+  });
+});
+
+// 1. authorize user via JWT token
+// 2. authorize user via "curent password" input box
+// 3. if both succeed, change the password
+app.patch('/users/:name', async function(req,res) {
+  var id = await getId(req.params.name);
+  User.findByPk(id)
+  .then(
+    user => authorizeUser(req,res,id,()=>{
+      bcrypt.compare(req.body.currentpassword, user.passwordhash,
+        (err,result) => {
+          if(err) {
+            return res.status(401).json({failed:'Unauthorized Access'});
+          }
+          if(result) {
+            bcrypt.hash(req.body.newpassword,10,(err,hash)=>{
+              if(err) {
+                return res.status(500).json({error:"error creating hash"});
+              } else {
+                return !!user.update({passwordhash:hash})
+                .then( () => res.json({success:"operation completed"}))
+                .catch(() => res.json({failed:"operation failed"}));
+              }
+            });
+          } else {
+            return res.status(401).json({failed:'Unauthorized Access'});
+          }
+      })
+    })
+  ).catch(() => {
+    res.json({error:"could not complete request"});
   });
 });
 
