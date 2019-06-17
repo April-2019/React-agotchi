@@ -11,14 +11,22 @@ require('dotenv').config();
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
+const cors = require('cors');
+const SECRET = process.env.SECRET
 
 
 const app = express()
 app.use(bodyParser.json())
 
-const SECRET = process.env.SECRET
-
+const corsOptions = {
+  "origin": "http://localhost:3000",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "preflightContinue": true, // false
+  "optionsSuccessStatus": 200, // 204
+  "credentials":true,
+  "allowedHeaders":"Content-Type,*"
+}
+app.use(cors(corsOptions))
 
 function getToken(req) {
     if(req.headers.authorization) {
@@ -27,6 +35,16 @@ function getToken(req) {
         return arr[1];
       }
     }
+}
+
+async function isAdmin(userId) {
+  var admin = false;
+  await User.findByPk(userId)
+  .then(user => {
+    admin = user.admin;
+  })
+  .catch(() => {console.log("could not find user")});
+  return admin;
 }
 
 async function isAdmin(userId) {
@@ -91,11 +109,7 @@ app.post('/users', function(req,res) {
 // request format:
 // headers: {"Content-Type":"application/json"}
 // body: {"name":<username>,"password":"<password>"}
-// response: {"success":"Approved","token":"<JWT token>"}
-// For any request requiring authorization, use the following headers:
-// {"Content-Type":"application/json","Authorization":"Bearer <token>"}
-// API will auto-detect if user is an admin and authorize accordingly.
-app.post('/login',async function(req,res) {
+app.post('/login', cors(corsOptions), async function(req,res) {
   var id = await getId(req.body.name);
   User.findByPk(id)
   .then(
@@ -123,6 +137,19 @@ app.post('/login',async function(req,res) {
   });
 });
 
+app.get("/loggedin",cors(corsOptions),async function(req,res) {
+  jwt.verify(getToken(req),SECRET,
+  async (err,results) => {
+      if(err) {
+        res.json({failed:'Not logged in'})
+      } else {
+        res.json({user:results.name});
+      }
+    });
+});
+
+
+
 
 // Change user password
 // steps:
@@ -130,7 +157,7 @@ app.post('/login',async function(req,res) {
 // 2. authorize user via "curent password" input box
 // 3. if both succeed, change the password
 // request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // body: {"currentpassword":"<current password>", "newpassword":"<new password>"}
 app.patch('/users/:name', async function(req,res) {
   var id = await getId(req.params.name);
@@ -199,9 +226,7 @@ function authorizeAdmin(req,res,successCallback) {
 
 //-------------------------------------------
 //Get request methods for ALL of a model
-// request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
-// also the user must be an admin or request will fail
+// the user must be an admin or request will fail
 //-------------------------------------------
 
 
@@ -280,8 +305,6 @@ app.get('/toys', (req, res) => {
 
 //--------------------------------------
 // Get request methods for one user's records
-// request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
 // Either user must be admin, or user must be the owner of the requested resource
 //--------------------------------------
 
@@ -341,8 +364,6 @@ app.get('/users/:name/toys', async (req, res) => {
 
 //--------------------------------------
 // Get request methods for ONE record
-// request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
 // Either user must be admin, or user must be the owner of the requested resource
 //--------------------------------------
 
@@ -417,12 +438,12 @@ app.get('/toys/:id', (req, res) => {
 //-----------------
 //Post to API (!!! Persisting Data !!!)
 // Request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // body: {"name":"<username>", 
 //    "data": { <created resource key/value pairs> } } 
 // Note that the username must be the currently logged in user (i.e.
 // coincide with the JWT token), and will become the owner of the
-// created resource. Please don't use a userId key-value in the body.data
+// created resource.
 //-----------------
 
 app.post('/pets', async (req, res) => {
@@ -452,7 +473,7 @@ app.post('/foods', async (req, res) => {
     }
   }); 
 })
-app.post('/healths', async (req, res) => {
+app.post('/healths',async (req, res) => {
   var userId = await getId(req.body["name"]);
   authorizeUser(req,res,userId,async () => {
     try {
@@ -487,7 +508,7 @@ app.post('/toys', async (req, res) => {
 
 // Update a pet
 // Request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // body: {"name":"<username>", 
 //    "data": { <updated pet key/value pairs> } } 
 // The username must be the currently logged in user (coincides with the
@@ -514,7 +535,7 @@ app.patch('/pets/:id', async(req, resp) => {
 //---------------------------------------------
 //Delete info from API (CANNOT DELETE PET!!!)
 // request format:
-// headers: {"Content-Type":"application/json","Authorization":"Bearer <token>"}
+// headers: {"Content-Type":"application/json"}
 // Either user must be admin, or user must be the owner of the requested resource
 //---------------------------------------------
 
@@ -558,7 +579,7 @@ app.delete('/healths/:id', (req, res) => {
   ).catch( () => res.json({"error":"could not delete health item"}) );
 })
 
-app.delete('/toys/:id', (req, res) => {
+app.delete('/toys/:id',(req, res) => {
   Toy.findByPk(req.params.id)
   .then(toy=>
     authorizeUser( req, res, toy["userId"],

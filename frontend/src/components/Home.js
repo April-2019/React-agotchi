@@ -2,23 +2,27 @@ import React from 'react'
 import Store from './Store'
 
 class Home extends React.Component {
-    state = {
-        store: false
+
+    componentDidMount() {
+        this.props.loggedIn(
+            () => {},
+            () => this.props.history.push("/")
+        );
     }
 
-    store = () => {
-        this.setState({
-            store: true
-        }) 
+    handleLogoutClick = () => {
+        this.props.logOut(); 
+        this.props.history.push("/");
     }
+
+   
 
   render() {
     document
       .body
       .setAttribute('class', 'home_background')
     return (
-        this.state.store?<Store/>
-      :<React.Fragment>
+        <React.Fragment>
         <div>
           Hello from Home
         </div>
@@ -32,7 +36,7 @@ class Home extends React.Component {
               Feed
             </div>
           </div>
-          <div className="ui teal vertical animated button" tabIndex="0" onClick={this.store}>
+          <div className="ui teal vertical animated button" tabIndex="0" onClick={() => this.props.history.push("/store")}>
             <div className="hidden content">Shop</div>
             <div className="visible content">
               <i className="shop icon"></i>
