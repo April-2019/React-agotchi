@@ -72,7 +72,7 @@ class Home extends React.Component {
         <div className='stats'></div>
         <div className="ui buttons">
           <div className="ui teal vertical animated button" tabIndex="0">
-            <div className="visible content">
+            <div className="visible content">`
               <i className="utensils icon"></i>
             </div>
             <div className="hidden content">
