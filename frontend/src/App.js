@@ -5,7 +5,10 @@ import Home from './components/Home'
 import Store from './components/Store'
 import Register from './components/Register'
 import Graveyard from './components/Graveyard'
+import Hatch from './components/Hatch'
+import 'semantic-ui-css/semantic.min.css'
 import {Container} from 'react-bootstrap'
+import constants from './constants'
 export default class App extends React.Component {
 
     state = {
@@ -18,7 +21,7 @@ export default class App extends React.Component {
     }
 
     loggedIn = (successCallback, failureCallback) => {
-        fetch('http://localhost:8000/loggedin',
+        fetch(`${constants.apiUrl}/loggedin`,
         {method:"GET",
         headers:{"Content-Type":"application/json",
         "Authorization":`Bearer ${localStorage.getItem("token")}`}})
@@ -35,7 +38,7 @@ export default class App extends React.Component {
     }
 
     login = (username,password,callback) => {
-        fetch("http://localhost:8000/login",
+        fetch(`${constants.apiUrl}/login`,
         {method:"POST", headers:{"Content-Type":"application/json"},
         body:JSON.stringify({"name":username,"password":password})} )
         .then(res => res.json())
@@ -120,6 +123,8 @@ export default class App extends React.Component {
                 <Route exact path="/home" render={(props) => <Home {...props} loggedIn={this.loggedIn} logOut={this.logOut} />} />
                 <Route exact path="/store" render={(props) => <Store {...props} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyHealthItem={this.buyHealthItem}/>}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
+                <Route exact path="/hatch" render={(props) => <Hatch {...props} loggedIn={this.loggedIn} logOut={this.logOut} />} />
+
             </Router>
         );
     }
