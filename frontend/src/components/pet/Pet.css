@@ -1,0 +1,17 @@
+.name{
+    position: absolute;
+    left: 50%;
+    top: 28%;
+    border: 5px ridge brown;
+    border-radius: 40px 40px 0px 0px;
+    padding: 20px;
+    background: #CD9575
+}
+
+.pet{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: 500px
+
+}

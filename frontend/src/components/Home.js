@@ -1,9 +1,28 @@
 import React from 'react'
-import {Card, Progress} from 'semantic-ui-react'
+import { Button, Dropdown,Card,Progress } from 'semantic-ui-react'
+import Pet from './pet/Pet'
+import './some.css'
+
+const options = [
+  { key: 'edit', icon: 'edit', text: 'Edit Post', value: 'edit' },
+  { key: 'delete', icon: 'delete', text: 'Remove Post', value: 'delete' },
+  { key: 'hide', icon: 'hide', text: 'Hide Post', value: 'hide' },
+]
 
 class Home extends React.Component {
 
   state = {username:""}
+
+  constructor(){
+    super();
+    this.state={
+      stillloading: true
+    }
+  }
+  redirectToHatch = () => {
+    this.props.history.push('/hatch')
+  }
+
 
   componentDidMount() {
     this
@@ -11,6 +30,9 @@ class Home extends React.Component {
       .loggedIn((username) => {
         this.setState({username:username});
         this.props.fetchCurrentPet(this.state.username)
+        .then(() => {this.setState({
+          stillloading: false
+        })})
         .then(
           () => {
             this.props.fetchApples(this.state.username)
@@ -28,6 +50,7 @@ class Home extends React.Component {
         )
       },
        () => this.props.history.push("/"));
+      //  debugger
   }
 
   handleLogoutClick = () => {
@@ -46,6 +69,7 @@ class Home extends React.Component {
       .setAttribute('class', 'home_background')
       
     return (
+
       <React.Fragment>
         <div
           className="ui teal vertical animated button"
@@ -78,6 +102,9 @@ class Home extends React.Component {
           <div className="visible content">
             <i className="table tennis icon"></i>
           </div>
+        </div>
+        <div>
+          {(!this.props.pet && !this.state.stillloading) ? <Pet pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
         </div>
         <Card>
           <label>{this.props.pet.name}</label>
