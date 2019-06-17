@@ -10,6 +10,12 @@ import 'semantic-ui-css/semantic.min.css'
 import {Container} from 'react-bootstrap'
 import constants from './constants'
 export default class App extends React.Component {
+
+    state = {
+        apple: 0,
+        medicine: 0,
+        toys: []
+      }
   
     componentDidMount() {
     }
@@ -47,7 +53,65 @@ export default class App extends React.Component {
 
     logOut = () => {
         localStorage.setItem("token","");
+        this.setState({
+            apple: 0,
+            medicine: 0,
+            toys: []
+        })
     }
+
+    buyApple = () => {
+    fetch('http://localhost:8000/foods', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+
+      })
+    })
+    .then(
+      this.props.setState({
+          apple: this.state.apple+1
+      })
+    )
+  }
+
+  buyToy = () => {
+    fetch('http://localhost:8000/toys', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+
+      })
+    })
+    .then(
+      this.props.setState({
+          apple: this.state.apple+1
+      })
+    )
+  }
+
+  buyHealthItem = () => {
+    fetch('http://localhost:8000/foods', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+
+      })
+    })
+    .then(
+      this.props.setState({
+          apple: this.state.apple+1
+      })
+    )
+  }
+
+  
 
     
 
@@ -57,7 +121,7 @@ export default class App extends React.Component {
                 <Route exact path="/" render={(props) => <Login {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
                 <Route exact path="/register" render={(props) => <Register {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
                 <Route exact path="/home" render={(props) => <Home {...props} loggedIn={this.loggedIn} logOut={this.logOut} />} />
-                <Route exact path="/store" render={(props) => <Store {...props} loggedIn={this.loggedIn} logOut={this.logOut} />}  />
+                <Route exact path="/store" render={(props) => <Store {...props} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyHealthItem={this.buyHealthItem}/>}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
                 <Route exact path="/hatch" render={(props) => <Hatch {...props} loggedIn={this.loggedIn} logOut={this.logOut} />} />
 
