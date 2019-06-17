@@ -21,7 +21,7 @@ export default class App extends React.Component {
         .then(
             data => {
                 if(data.user) {
-                    successCallback();
+                    successCallback(data.user);
                 } else {
                     failureCallback();
                 }
