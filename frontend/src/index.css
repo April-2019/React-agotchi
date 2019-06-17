@@ -11,6 +11,24 @@
 }
 
 .register_background {
-    background: url('./images/register.jpg') no-repeat center;
+    background: url('./images/register.jpg') no-repeat center
 }
 
+.home_background {
+    background: url('./images/home.png') no-repeat center fixed;
+    /* -webkit-background-size: cover; */
+    /* -moz-background-size: cover; */
+    /* -o-backgeoundsize: cover; */
+    background-size: cover
+}
+
+.buttons {
+    position: absolute;
+    left: 520px;
+    top: 650px
+}
+
+.store_background {
+    background: url('./images/store.jpeg');
+    background-size: cover
+}

@@ -2,7 +2,6 @@ import React from 'react'
 import {Form, Container, Col, Button, Row} from 'react-bootstrap'
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Register from './Register'
-
 class Login extends React.Component {
   componentDidMount() {
     this.props.loggedIn(
@@ -20,20 +19,22 @@ class Login extends React.Component {
       () => this.props.history.push("/home") );
   }
 
+
    render() {
+    document.body.setAttribute('class', 'homepage_background')
     return (
        <Container>
           <Form onSubmit={this.login}>
             <div className='login_background'>
              <Row className="justify-content-center">
-          <Form.Group as={Col} xs='auto' sm='auto' md='auto' lg='auto' controlId='formLoginUsername'>
+          <Form.Group as={Col} xs={8} sm={7} md={6} lg={5} xl={4} controlId='formLoginUsername'>
             <Form.Label>Username</Form.Label>
-            <Form.Control type='text' placeholder='Enter Username' name="userName"/>
+            <Form.Control type='text' placeholder='Enter Username' name="userName" onChange={(e) => this.props.username(e)}/>
             <Form.Text>Please enter your username here</Form.Text>
           </Form.Group>
           </Row>
           <Row className="justify-content-center">
-          <Form.Group as={Col} xs='auto' sm='auto' md='auto' lg='auto' xl='auto' controlId='formLoginPassword'>
+          <Form.Group as={Col} xs={8} sm={7} md={6} lg={5} xl={4} controlId='formLoginPassword'>
               <Form.Label>Password</Form.Label>
               <Form.Control type='password' placeholder='Enter Password' name="passWord"></Form.Control>
               <Form.Text>Please enter your password here</Form.Text>

@@ -8,22 +8,15 @@ const Food = require('./models/Food.js')
 const Health = require('./models/Health.js')
 const Toy = require('./models/Toy.js')
 require('dotenv').config();
-//const cookieParser = require('cookie-parser');
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
-
-// const cookieConfig = {
-//   httpOnly: true,
-//   maxAge: 7200000,
-//   signed: true
-// };
+const SECRET = process.env.SECRET
 
 
 const app = express()
 app.use(bodyParser.json())
-
-//app.use(cookieParser(process.env.COOKIESECRET));
 
 const corsOptions = {
   "origin": "http://localhost:3000",
@@ -35,15 +28,23 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
-const SECRET = process.env.SECRET
-
 function getToken(req) {
-    //return req.signedCookies.authorization;
     if(req.headers.authorization) {
-      if(req.headers.authorization.split(" ").length > 1) {
-        return req.headers.authorization.split(" ")[1];
+      var arr = req.headers.authorization.split(" ");
+      if((arr.length===2) && (arr[0]==="Bearer")) {
+        return arr[1];
       }
     }
+}
+
+async function isAdmin(userId) {
+  var admin = false;
+  await User.findByPk(userId)
+  .then(user => {
+    admin = user.admin;
+  })
+  .catch(() => {console.log("could not find user")});
+  return admin;
 }
 
 async function isAdmin(userId) {
@@ -125,7 +126,6 @@ app.post('/login', cors(corsOptions), async function(req,res) {
               id:user.id
             }, SECRET,
             { expiresIn: '2h' });
-            //res.cookie('Authorization',token,cookieConfig);
             return res.status(200).json({success:'Approved',token:token});
           }
           return res.status(401).json({failed:'Unauthorized Access'});

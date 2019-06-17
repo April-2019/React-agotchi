@@ -36,10 +36,7 @@ class Register extends React.Component {
           <Row className="justify-content-center">
             <Form.Group
               as={Col}
-              xs='auto'
-              sm='auto'
-              md='auto'
-              lg='auto'
+              xs={8} sm={7} md={6} lg={5} xl={4}
               controlId='formLoginUsername'>
               <Form.Label>Username</Form.Label>
               <Form.Control type='text' placeholder='Enter Username' name="userName"/>
@@ -49,11 +46,7 @@ class Register extends React.Component {
           <Row className="justify-content-center">
             <Form.Group
               as={Col}
-              xs='auto'
-              sm='auto'
-              md='auto'
-              lg='auto'
-              xl='auto'
+              xs={8} sm={7} md={6} lg={5} xl={4}
               controlId='formLoginPassword'>
               <Form.Label>Password</Form.Label>
               <Form.Control type='password' placeholder='Enter Password'></Form.Control>
@@ -61,15 +54,13 @@ class Register extends React.Component {
             </Form.Group>
           </Row>
           <Row className="justify-content-center">
-            <Form.Group controlId='formRegisterReenterPassword'>
+            <Form.Group as={Col} xs={8} sm={7} md={6} lg={5} xl={4} controlId='formRegisterReenterPassword'>
               <Form.Label>Re-enter Password</Form.Label>
               <Form.Control type='password' placeholder='Re-enter Password'></Form.Control>
               <Form.Text>Please Re-enter your password here</Form.Text>
+              <Button variant="outline-primary" type='submit'>Register</Button>
+              <Button variant="outline-secondary" onClick={() => this.props.history.push("/")}>Back To Login</Button>
             </Form.Group>
-          </Row>
-          <Row className="justify-content-center">
-          <Button variant="outline-primary" type='submit'>Register</Button>
-          <Button variant="outline-secondary" onClick={() => this.props.history.push("/")}>Back To Login</Button>
           </Row>
         </div>
       </Form>

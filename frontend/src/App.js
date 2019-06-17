@@ -5,12 +5,11 @@ import Home from './components/Home'
 import Store from './components/Store'
 import Register from './components/Register'
 import Graveyard from './components/Graveyard'
+import 'semantic-ui-css/semantic.min.css'
 import {Container} from 'react-bootstrap'
-
 export default class App extends React.Component {
-
+  
     componentDidMount() {
-        
     }
 
     loggedIn = (successCallback, failureCallback) => {
@@ -43,9 +42,12 @@ export default class App extends React.Component {
         });
     }
 
+
     logOut = () => {
         localStorage.setItem("token","");
     }
+
+    
 
     render() {
         return (
