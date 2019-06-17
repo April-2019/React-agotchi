@@ -2,12 +2,31 @@ import React from 'react'
 
 class Home extends React.Component {
 
+  state = {username:""}
+
   componentDidMount() {
     this
       .props
-      .loggedIn(
-        () => {},
-        () => this.props.history.push("/"));
+      .loggedIn((username) => {
+        this.setState({username:username});
+        this.props.fetchCurrentPet(this.state.username)
+        .then(
+          () => {
+            this.props.fetchApples(this.state.username)
+            .then(
+              () => {
+                this.props.fetchToys(this.state.username)
+                .then(
+                  () => {
+                    this.props.fetchMedicine(this.state.username)
+                  }
+                )
+              }
+            )
+          }
+        )
+      },
+       () => this.props.history.push("/"));
   }
 
   handleLogoutClick = () => {
