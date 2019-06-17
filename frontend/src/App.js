@@ -5,6 +5,7 @@ import Home from './components/Home'
 import Store from './components/Store'
 import Register from './components/Register'
 import Graveyard from './components/Graveyard'
+import Hatch from './components/Hatch'
 import 'semantic-ui-css/semantic.min.css'
 import {Container} from 'react-bootstrap'
 export default class App extends React.Component {
@@ -57,6 +58,8 @@ export default class App extends React.Component {
                 <Route exact path="/home" render={(props) => <Home {...props} loggedIn={this.loggedIn} logOut={this.logOut} />} />
                 <Route exact path="/store" render={(props) => <Store {...props} loggedIn={this.loggedIn} logOut={this.logOut} />}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
+                <Route exact path="/hatch" render={(props) => <Hatch {...props} loggedIn={this.loggedIn} logOut={this.logOut} />} />
+
             </Router>
         );
     }

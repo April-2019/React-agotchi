@@ -29,7 +29,7 @@ class Login extends React.Component {
              <Row className="justify-content-center">
           <Form.Group as={Col} xs={8} sm={7} md={6} lg={5} xl={4} controlId='formLoginUsername'>
             <Form.Label>Username</Form.Label>
-            <Form.Control type='text' placeholder='Enter Username' name="userName"/>
+            <Form.Control type='text' placeholder='Enter Username' name="userName" />
             <Form.Text>Please enter your username here</Form.Text>
           </Form.Group>
           </Row>

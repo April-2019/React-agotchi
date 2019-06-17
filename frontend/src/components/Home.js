@@ -24,7 +24,7 @@ class Home extends React.Component {
     return (
         <React.Fragment>
         <div>
-          Hello from Home
+          <button onClick={this.handleLogoutClick}>Logout</button>
         </div>
         <div className='stats'></div>
         <div className="ui buttons">
