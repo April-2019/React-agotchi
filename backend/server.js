@@ -11,14 +11,22 @@ require('dotenv').config();
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
+const cors = require('cors');
+const SECRET = process.env.SECRET
 
 
 const app = express()
 app.use(bodyParser.json())
 
-const SECRET = process.env.SECRET
-
+const corsOptions = {
+  "origin": "http://localhost:3000",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "preflightContinue": true, // false
+  "optionsSuccessStatus": 200, // 204
+  "credentials":true,
+  "allowedHeaders":"Content-Type,*"
+}
+app.use(cors(corsOptions))
 
 function getToken(req) {
     if(req.headers.authorization) {
@@ -27,6 +35,16 @@ function getToken(req) {
         return arr[1];
       }
     }
+}
+
+async function isAdmin(userId) {
+  var admin = false;
+  await User.findByPk(userId)
+  .then(user => {
+    admin = user.admin;
+  })
+  .catch(() => {console.log("could not find user")});
+  return admin;
 }
 
 async function isAdmin(userId) {
@@ -59,6 +77,10 @@ async function getId(name) {
 
 
 
+// Create a new user
+// request format:
+// headers: {"Content-Type":"application/json"}
+// body: {"name":<username>,"password":"<password>"}
 app.post('/users', function(req,res) {
   bcrypt.hash(req.body.password, 10, async function(err,hash)
   {
@@ -82,7 +104,12 @@ app.post('/users', function(req,res) {
   });
 });
 
-app.post('/login',async function(req,res) {
+
+// Login a user
+// request format:
+// headers: {"Content-Type":"application/json"}
+// body: {"name":<username>,"password":"<password>"}
+app.post('/login', cors(corsOptions), async function(req,res) {
   var id = await getId(req.body.name);
   User.findByPk(id)
   .then(
@@ -96,9 +123,9 @@ app.post('/login',async function(req,res) {
           if(result) {
             const token = jwt.sign({
               name:user.name,
-              id:user.id                //////////////////////////////////////////////////
-            }, SECRET,                  /// SET SECRET ENV VARIABLE //////////////////////
-            { expiresIn: '2h' });       //////////////////////////////////////////////////
+              id:user.id
+            }, SECRET,
+            { expiresIn: '2h' });
             return res.status(200).json({success:'Approved',token:token});
           }
           return res.status(401).json({failed:'Unauthorized Access'});
@@ -110,9 +137,28 @@ app.post('/login',async function(req,res) {
   });
 });
 
+app.get("/loggedin",cors(corsOptions),async function(req,res) {
+  jwt.verify(getToken(req),SECRET,
+  async (err,results) => {
+      if(err) {
+        res.json({failed:'Not logged in'})
+      } else {
+        res.json({user:results.name});
+      }
+    });
+});
+
+
+
+
+// Change user password
+// steps:
 // 1. authorize user via JWT token
 // 2. authorize user via "curent password" input box
 // 3. if both succeed, change the password
+// request format:
+// headers: {"Content-Type":"application/json"}
+// body: {"currentpassword":"<current password>", "newpassword":"<new password>"}
 app.patch('/users/:name', async function(req,res) {
   var id = await getId(req.params.name);
   User.findByPk(id)
@@ -180,6 +226,7 @@ function authorizeAdmin(req,res,successCallback) {
 
 //-------------------------------------------
 //Get request methods for ALL of a model
+// the user must be an admin or request will fail
 //-------------------------------------------
 
 
@@ -258,6 +305,7 @@ app.get('/toys', (req, res) => {
 
 //--------------------------------------
 // Get request methods for one user's records
+// Either user must be admin, or user must be the owner of the requested resource
 //--------------------------------------
 
 
@@ -316,6 +364,7 @@ app.get('/users/:name/toys', async (req, res) => {
 
 //--------------------------------------
 // Get request methods for ONE record
+// Either user must be admin, or user must be the owner of the requested resource
 //--------------------------------------
 
 
@@ -388,6 +437,13 @@ app.get('/toys/:id', (req, res) => {
 
 //-----------------
 //Post to API (!!! Persisting Data !!!)
+// Request format:
+// headers: {"Content-Type":"application/json"}
+// body: {"name":"<username>", 
+//    "data": { <created resource key/value pairs> } } 
+// Note that the username must be the currently logged in user (i.e.
+// coincide with the JWT token), and will become the owner of the
+// created resource.
 //-----------------
 
 app.post('/pets', async (req, res) => {
@@ -417,7 +473,7 @@ app.post('/foods', async (req, res) => {
     }
   }); 
 })
-app.post('/healths', async (req, res) => {
+app.post('/healths',async (req, res) => {
   var userId = await getId(req.body["name"]);
   authorizeUser(req,res,userId,async () => {
     try {
@@ -450,11 +506,19 @@ app.post('/toys', async (req, res) => {
 //----------------------------------------------
 
 
+// Update a pet
+// Request format:
+// headers: {"Content-Type":"application/json"}
+// body: {"name":"<username>", 
+//    "data": { <updated pet key/value pairs> } } 
+// The username must be the currently logged in user (coincides with the
+// JWT token), and must be the owner of the pet.
 app.patch('/pets/:id', async(req, resp) => {
   var userId = await getId(req.body.name);
   Pet.findByPk(req.params.id)
   .then( async pet => {
-    if(parseInt(pet["userId"]) !== userId) {
+    if( (parseInt(pet["userId"]) !== userId) || 
+      (req.body.data.userId && (parseInt(req.body.data.userId) !== userId))) {
       resp.json({"error":"invalid input"})
     } else {
       authorizeUser( req, resp, pet["userId"],
@@ -470,6 +534,9 @@ app.patch('/pets/:id', async(req, resp) => {
 
 //---------------------------------------------
 //Delete info from API (CANNOT DELETE PET!!!)
+// request format:
+// headers: {"Content-Type":"application/json"}
+// Either user must be admin, or user must be the owner of the requested resource
 //---------------------------------------------
 
 
@@ -512,7 +579,7 @@ app.delete('/healths/:id', (req, res) => {
   ).catch( () => res.json({"error":"could not delete health item"}) );
 })
 
-app.delete('/toys/:id', (req, res) => {
+app.delete('/toys/:id',(req, res) => {
   Toy.findByPk(req.params.id)
   .then(toy=>
     authorizeUser( req, res, toy["userId"],
