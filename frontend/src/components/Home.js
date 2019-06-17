@@ -1,5 +1,7 @@
 import React from 'react'
 import { Button, Dropdown } from 'semantic-ui-react'
+import Pet from './pet/Pet'
+import './some.css'
 
 const options = [
   { key: 'edit', icon: 'edit', text: 'Edit Post', value: 'edit' },
@@ -9,10 +11,31 @@ const options = [
 
 class Home extends React.Component {
 
+  state = {username:""}
+
+  constructor(){
+    super();
+    this.state={
+      stillloading: true
+    }
+  }
+  redirectToHatch = () => {
+    this.props.history.push('/hatch')
+  }
+
+
   componentDidMount() {
     this
       .props
-      .loggedIn(() => {}, () => this.props.history.push("/"));
+      .loggedIn((username) => {
+        this.setState({username:username});
+        this.props.fetchCurrentPet(this.state.username)
+        .then(() => {this.setState({
+          stillloading: false
+        })})
+      },
+       () => this.props.history.push("/"));
+      //  debugger
   }
 
   handleLogoutClick = () => {
@@ -40,6 +63,7 @@ class Home extends React.Component {
       options={options}
       trigger={<React.Fragment />}/>
       </Button.Group>
+
 
         {// <div>
         //   className="ui teal vertical animated button"
@@ -98,6 +122,9 @@ class Home extends React.Component {
               <i className="table tennis icon"></i>
             </div>
           </div>
+        </div>
+        <div>
+          {(!this.props.pet && !this.state.stillloading) ? <Pet pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
         </div>
       </React.Fragment>
 

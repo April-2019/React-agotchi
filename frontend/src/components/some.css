@@ -1,0 +1,9 @@
+.redirect{
+    position: absolute;
+    left: 42%;
+    top: 50%;
+    font-size: 42px;
+    border-radius: 16px
+}
+
+
