@@ -11,20 +11,31 @@ class Register extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    e.persist();
     let username = document.querySelector("#formLoginUsername").value;
     let password = document.querySelector("#formLoginPassword").value;
     let confirmPassword = document.querySelector("#formRegisterReenterPassword").value;
     if(password !== confirmPassword) {
       alert("Passwords must match");
     } else {
-      e.target.reset();
-      fetch("http://localhost:8000/users",
-        {method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({"name":username,"password":password})} )
-      .then( () =>
-        this.props.login(username,password,
-          () => this.props.history.push("/home") )
-      );
+      // check if username exists
+      fetch(`http://localhost:8000/exists/${username}`).then(res => res.json())
+      .then(data => {
+        if(data.message === "user exists") {
+          alert("Username already in use")
+        } else {
+          // create user
+          e.target.reset();
+          fetch("http://localhost:8000/users",
+            {method:"POST", headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({"name":username,"password":password})} )
+          .then( () =>
+            this.props.login(username,password,
+              () => this.props.history.push("/home") )
+          );
+        }
+      });
+
     }
   }
 

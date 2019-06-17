@@ -47,15 +47,6 @@ async function isAdmin(userId) {
   return admin;
 }
 
-async function isAdmin(userId) {
-  var admin = false;
-  await User.findByPk(userId)
-  .then(user => {
-    admin = user.admin;
-  })
-  .catch(() => {console.log("could not find user")});
-  return admin;
-}
 
 async function getId(name) {
   var id = -1;
@@ -229,6 +220,14 @@ function authorizeAdmin(req,res,successCallback) {
 // the user must be an admin or request will fail
 //-------------------------------------------
 
+app.get('/exists/:user', async (req,res) => {
+  var id = await getId(req.params.user);
+  if(id === -1) {
+    res.json({message: "user not found"})
+  } else {
+    res.json({message: "user exists"})
+  }
+})
 
 app.get('/users', (req, res) => {
   User.findAll()
