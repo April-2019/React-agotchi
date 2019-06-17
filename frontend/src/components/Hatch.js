@@ -12,7 +12,17 @@ export default class Hatch extends Component{
 
     componentDidMount() {
         this.props.loggedIn(
-            (username) => {this.setState({username:username})},
+            (username) => {
+                this.setState({username:username});
+                this.props.fetchCurrentPet(this.state.username)
+                .then(
+                    () => {
+                        if(!!this.props.pet) {
+                            this.props.history.push("/")
+                        }
+                    }
+                );
+            },
             () => this.props.history.push("/")
         );
     }
@@ -103,21 +113,30 @@ export default class Hatch extends Component{
     }
 
     displayAnimation = () => {
+        var interval1;
+        var interval2;
         setTimeout(
-            () => { setInterval(
+            () => { interval1 = setInterval(
                 () => { 
                     console.log("that");
                     document.querySelector("#rightEgg").style.display = "none";
                     document.querySelector("#leftEgg").style.display = "";
                  }
                 ,1000) },500);
-        setInterval(
+        interval2 = setInterval(
             () => { 
                 console.log("this");
                 document.querySelector("#rightEgg").style.display = "";
                 document.querySelector("#leftEgg").style.display = "none";
              }
         ,1000);
+        setTimeout(
+            () => {
+                clearInterval(interval1);
+                clearInterval(interval2);
+                this.props.history.push("/home");
+            }
+            ,120000);
     }
 
     render(){
