@@ -16,7 +16,22 @@ class Home extends React.Component {
       .props
       .loggedIn((username) => {
         this.setState({username:username});
-        this.props.fetchCurrentPet(this.state.username);
+        this.props.fetchCurrentPet(this.state.username)
+        .then(
+          () => {
+            this.props.fetchApples(this.state.username)
+            .then(
+              () => {
+                this.props.fetchToys(this.state.username)
+                .then(
+                  () => {
+                    this.props.fetchMedicine(this.state.username)
+                  }
+                )
+              }
+            )
+          }
+        )
       },
        () => this.props.history.push("/"));
   }
@@ -106,6 +121,7 @@ class Home extends React.Component {
             </div>
           </div>
         </div>
+
       </React.Fragment>
 
     )
