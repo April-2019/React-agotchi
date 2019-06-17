@@ -1,6 +1,8 @@
 import React from 'react'
 import {Form, Container, Col, Button, Row} from 'react-bootstrap'
 
+import constants from '../constants'
+
 class Register extends React.Component {
   constructor() {
     super();
@@ -24,14 +26,14 @@ class Register extends React.Component {
       this.setState({errMsg:"Passwords must match"});
     } else {
       // check if username exists
-      fetch(`http://localhost:8000/exists/${username}`).then(res => res.json())
+      fetch(`${constants.apiUrl}/exists/${username}`).then(res => res.json())
       .then(data => {
         if(data.message === "user exists") {
           this.setState({errMsg:"Username already in use"})
         } else {
           // create user
           e.target.reset();
-          fetch("http://localhost:8000/users",
+          fetch(`${constants.apiUrl}/users`,
             {method:"POST", headers:{"Content-Type":"application/json"},
             body:JSON.stringify({"name":username,"password":password})} )
           .then( () =>
@@ -44,7 +46,7 @@ class Register extends React.Component {
     }
   }
 
-  render() {
+  render() { 
   return (
     <Container>
       <Form onSubmit={this.handleSubmit}>
