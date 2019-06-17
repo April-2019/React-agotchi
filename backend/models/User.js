@@ -23,7 +23,7 @@ const sequelize = new Sequelize('reactagotchi','postgres','abcdef',
 
 class User extends Model {}
 User.init({
-    name: STRING,
+    name: {type:STRING,allowNull:false,unique:true},
     passwordhash: STRING,
     money: INTEGER,
     admin: BOOLEAN

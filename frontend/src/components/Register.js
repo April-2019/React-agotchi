@@ -2,6 +2,11 @@ import React from 'react'
 import {Form, Container, Col, Button, Row} from 'react-bootstrap'
 
 class Register extends React.Component {
+  constructor() {
+    super();
+    this.state = { errMsg: "" }
+  }
+
   componentDidMount() {
     this.props.loggedIn(
         () => this.props.history.push("/home"),
@@ -11,20 +16,31 @@ class Register extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    e.persist();
     let username = document.querySelector("#formLoginUsername").value;
     let password = document.querySelector("#formLoginPassword").value;
     let confirmPassword = document.querySelector("#formRegisterReenterPassword").value;
     if(password !== confirmPassword) {
-      alert("Passwords must match");
+      this.setState({errMsg:"Passwords must match"});
     } else {
-      e.target.reset();
-      fetch("http://localhost:8000/users",
-        {method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({"name":username,"password":password})} )
-      .then( () =>
-        this.props.login(username,password,
-          () => this.props.history.push("/home") )
-      );
+      // check if username exists
+      fetch(`http://localhost:8000/exists/${username}`).then(res => res.json())
+      .then(data => {
+        if(data.message === "user exists") {
+          this.setState({errMsg:"Username already in use"})
+        } else {
+          // create user
+          e.target.reset();
+          fetch("http://localhost:8000/users",
+            {method:"POST", headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({"name":username,"password":password})} )
+          .then( () =>
+            this.props.login(username,password,
+              () => this.props.history.push("/home") )
+          );
+        }
+      });
+
     }
   }
 
@@ -58,6 +74,7 @@ class Register extends React.Component {
               <Form.Label>Re-enter Password</Form.Label>
               <Form.Control type='password' placeholder='Re-enter Password'></Form.Control>
               <Form.Text>Please Re-enter your password here</Form.Text>
+              <Form.Text><span style={{"color":"red"}}><b>{this.state.errMsg}</b></span></Form.Text>
               <Button variant="outline-primary" type='submit'>Register</Button>
               <Button variant="outline-secondary" onClick={() => this.props.history.push("/")}>Back To Login</Button>
             </Form.Group>
