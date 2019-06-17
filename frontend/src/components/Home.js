@@ -9,10 +9,18 @@ class Home extends React.Component {
         );
     }
 
+    handleLogoutClick = () => {
+        this.props.logOut(); 
+        this.props.history.push("/");
+    }
+
     render() {
         return(
             <div>
                 Hello from Home
+                <button onClick={this.handleLogoutClick}>Logout</button>
+                <button onClick={() => this.props.history.push("/store")}>Store</button>
+                <button onClick={() => this.props.history.push("/graveyard")}>Graveyard</button>
             </div>
         )
     }

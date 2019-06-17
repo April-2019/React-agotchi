@@ -12,7 +12,17 @@ export default class Store extends React.Component {
   }
 
 
+  handleLogoutClick = () => {
+    this.props.logOut(); 
+    this.props.history.push("/");
+  }
+
+
+
   render() {
-    return ( <div></div> )
+    return ( <div>Hello from Store
+      <button onClick={this.handleLogoutClick}>Logout</button>
+      <button onClick={() => this.props.history.push("/home")}>Home</button>
+      <button onClick={() => this.props.history.push("/graveyard")}>Graveyard</button></div> )
   }
 }

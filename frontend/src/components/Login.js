@@ -16,15 +16,8 @@ class Login extends React.Component {
     let username = document.querySelector("#formLoginUsername").value;
     let password = document.querySelector("#formLoginPassword").value;
     e.target.reset();
-    fetch("http://localhost:8000/login",
-     {method:"POST", headers:{"Content-Type":"application/json"},
-       body:JSON.stringify({"name":username,"password":password})} )
-    .then(res => res.json())
-    .then( data => {
-        if ( data.success === "Approved" ) {
-          this.props.history.push("/home");
-        }
-    });
+    this.props.login(username,password,
+      () => this.props.history.push("/home") );
   }
 
    render() {

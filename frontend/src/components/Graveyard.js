@@ -10,7 +10,16 @@ export default class Graveyard extends React.Component {
         () => this.props.history.push("/")
     );
   }
+
+  handleLogoutClick = () => {
+    this.props.logOut(); 
+    this.props.history.push("/");
+  }
+
   render() {
-    return ( <div></div> )
+    return ( <div>Hello from Graveyard
+      <button onClick={this.handleLogoutClick}>Logout</button>
+      <button onClick={() => this.props.history.push("/home")}>Home</button>
+      <button onClick={() => this.props.history.push("/store")}>Store</button></div> )
   }
 }
