@@ -5,9 +5,12 @@ import Register from './Register'
 
 
 export default class Store extends React.Component {
+
+  state = {username:""}
+
   componentDidMount() {
     this.props.loggedIn(
-        () => {},
+        (username) => {this.setState({username:username})},
         () => this.props.history.push("/")
     );
   }

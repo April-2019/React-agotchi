@@ -8,13 +8,14 @@ import Graveyard from './components/Graveyard'
 import Hatch from './components/Hatch'
 import 'semantic-ui-css/semantic.min.css'
 import {Container} from 'react-bootstrap'
+import constants from './constants'
 export default class App extends React.Component {
   
     componentDidMount() {
     }
 
     loggedIn = (successCallback, failureCallback) => {
-        fetch('http://localhost:8000/loggedin',
+        fetch(`${constants.apiUrl}/loggedin`,
         {method:"GET",
         headers:{"Content-Type":"application/json",
         "Authorization":`Bearer ${localStorage.getItem("token")}`}})
@@ -31,7 +32,7 @@ export default class App extends React.Component {
     }
 
     login = (username,password,callback) => {
-        fetch("http://localhost:8000/login",
+        fetch(`${constants.apiUrl}/login`,
         {method:"POST", headers:{"Content-Type":"application/json"},
         body:JSON.stringify({"name":username,"password":password})} )
         .then(res => res.json())
