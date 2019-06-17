@@ -2,6 +2,11 @@ import React from 'react'
 import {Form, Container, Col, Button, Row} from 'react-bootstrap'
 
 class Register extends React.Component {
+  constructor() {
+    super();
+    this.state = { errMsg: "" }
+  }
+
   componentDidMount() {
     this.props.loggedIn(
         () => this.props.history.push("/home"),
@@ -16,13 +21,13 @@ class Register extends React.Component {
     let password = document.querySelector("#formLoginPassword").value;
     let confirmPassword = document.querySelector("#formRegisterReenterPassword").value;
     if(password !== confirmPassword) {
-      alert("Passwords must match");
+      this.setState({errMsg:"Passwords must match"});
     } else {
       // check if username exists
       fetch(`http://localhost:8000/exists/${username}`).then(res => res.json())
       .then(data => {
         if(data.message === "user exists") {
-          alert("Username already in use")
+          this.setState({errMsg:"Username already in use"})
         } else {
           // create user
           e.target.reset();
@@ -69,6 +74,7 @@ class Register extends React.Component {
               <Form.Label>Re-enter Password</Form.Label>
               <Form.Control type='password' placeholder='Re-enter Password'></Form.Control>
               <Form.Text>Please Re-enter your password here</Form.Text>
+              <Form.Text><span style={{"color":"red"}}><b>{this.state.errMsg}</b></span></Form.Text>
               <Button variant="outline-primary" type='submit'>Register</Button>
               <Button variant="outline-secondary" onClick={() => this.props.history.push("/")}>Back To Login</Button>
             </Form.Group>
