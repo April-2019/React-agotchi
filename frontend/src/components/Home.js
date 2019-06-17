@@ -9,10 +9,16 @@ const options = [
 
 class Home extends React.Component {
 
+  state = {username:""}
+
   componentDidMount() {
     this
       .props
-      .loggedIn(() => {}, () => this.props.history.push("/"));
+      .loggedIn((username) => {
+        this.setState({username:username});
+        this.props.fetchCurrentPet(this.state.username);
+      },
+       () => this.props.history.push("/"));
   }
 
   handleLogoutClick = () => {
@@ -40,6 +46,7 @@ class Home extends React.Component {
       options={options}
       trigger={<React.Fragment />}/>
       </Button.Group>
+
 
         {// <div>
         //   className="ui teal vertical animated button"
