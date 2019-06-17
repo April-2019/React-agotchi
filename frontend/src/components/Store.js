@@ -20,23 +20,15 @@ export default class Store extends React.Component {
 
   render() {
     
-      document
+    document
     .body
     .setAttribute('class', 'store_background')
   return (
     <React.Fragment>
-      <div>
-        Hello from Store
-      </div>
-      <div>
-        {'apple'}
-      </div>
-      <div>
-
-      </div>
-      <div>
-
-      </div>
+      <div className="ui primary top attached button" tabIndex="0">Back Home</div>
+      <button className="positive ui button" onClick={() => this.props.buyApple()}>Buy Apple</button>
+      <button className="positive ui button" onClick={() => this.props.buyToy()}>Buy Toy</button>
+      <button className="positive ui button" onClick={() => this.props.buyHealthItem()}>Buy Health Item</button>
     </React.Fragment>
   )
   }

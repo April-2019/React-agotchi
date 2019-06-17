@@ -29,6 +29,7 @@ class Register extends React.Component {
   }
 
   render() {
+    document.body.setAttribute('class', 'homepage_background')
   return (
     <Container>
       <Form onSubmit={this.handleSubmit}>
