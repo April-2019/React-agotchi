@@ -41,7 +41,7 @@ class Home extends React.Component {
       trigger={<React.Fragment />}/>
       </Button.Group>
 
-        // <div
+        {// <div>
         //   className="ui teal vertical animated button"
         //   tabIndex="0"
         //   onClick={() => this.props.history.push("/store")}>
@@ -63,7 +63,8 @@ class Home extends React.Component {
         //   <div className="visible content">
         //     <i className="table tennis icon"></i>
         //   </div>
-        // </div>
+        // </div>}
+        }
       
         <div>
           <button onClick={this.handleLogoutClick}>Logout</button>
