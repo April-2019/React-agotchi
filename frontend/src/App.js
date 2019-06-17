@@ -12,7 +12,7 @@ import constants from './constants'
 export default class App extends React.Component {
 
     state = {
-        food: 0,
+        apple: 0,
         medicine: 0,
         toys: 0,
         pet: {}
@@ -40,6 +40,54 @@ export default class App extends React.Component {
                 );
             }
         )
+    }
+
+    deleteApple = (username) => {
+      fetch(`${constants.apiUrl}/users/${username}/foods`,
+      {method:"GET",
+          headers:{"Content-Type":"application/json",
+          "Authorization":`Bearer ${localStorage.getItem("token")}`}})
+      .then(res=>res.json()).then(
+        foods => {
+          let apples = foods.filter(food => (food.name === "apple"))
+          if(apples.length > 0) {
+            let appleId = apples[0].id
+            fetch(`${constants.apiUrl}/foods/${appleId}`,
+              {method:"DELETE",
+               headers:{"Content-Type":"application/json",
+               "Authorization":`Bearer ${localStorage.getItem("token")}`}}
+            ).then(
+              () => {
+                this.setState({apple:this.state.apple-1})
+              }
+            )
+          }
+        }
+      )
+    }
+
+    deleteMedicine = (username) => {
+      fetch(`${constants.apiUrl}/users/${username}/healths`,
+      {method:"GET",
+          headers:{"Content-Type":"application/json",
+          "Authorization":`Bearer ${localStorage.getItem("token")}`}})
+      .then(res=>res.json()).then(
+        healths => {
+          let medicines = healths.filter(health => (health.name === "medicine"))
+          if(medicines.length > 0) {
+            let medicineId = medicines[0].id
+            fetch(`${constants.apiUrl}/healths/${medicineId}`,
+              {method:"DELETE", 
+               headers:{"Content-Type":"application/json",
+               "Authorization":`Bearer ${localStorage.getItem("token")}`}}
+            ).then(
+              () => {
+                this.setState({medicine:this.state.medicine-1})
+              }
+            )
+          }
+        }
+      )
     }
 
     fetchToys = (username) => {
@@ -191,7 +239,7 @@ export default class App extends React.Component {
             <Router>
                 <Route exact path="/" render={(props) => <Login {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
                 <Route exact path="/register" render={(props) => <Register {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
-                <Route exact path="/home" render={(props) => <Home {...props} fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} />} />
+                <Route exact path="/home" render={(props) => <Home {...props} fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut}/>} />
                 <Route exact path="/store" render={(props) => <Store {...props} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyHealthItem={this.buyHealthItem}/>}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
                 <Route exact path="/hatch" render={(props) => <Hatch {...props} pet={this.state.pet} fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} />} />

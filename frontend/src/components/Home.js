@@ -1,4 +1,5 @@
 import React from 'react'
+import {Card, Progress} from 'semantic-ui-react'
 
 class Home extends React.Component {
 
@@ -78,6 +79,16 @@ class Home extends React.Component {
             <i className="table tennis icon"></i>
           </div>
         </div>
+        <Card>
+          <label>{this.props.pet.name}</label>
+          <label>Age: {this.props.age}</label>
+          <lable>Health</lable>
+          <Progress percent={this.props.pet.health} color='red'/>
+          <label>Hunger</label>
+          <Progress percent={this.props.pet.hunger} color='green'/>
+          <label>Fun</label>
+          <Progress percent={this.props.pet.happiness} color='blue'/>
+        </Card>
       </React.Fragment>
     )
   }
