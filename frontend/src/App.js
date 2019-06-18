@@ -210,7 +210,7 @@ export default class App extends React.Component {
                   apple:this.state.apple-1,
                   pet: {
                     ...this.state.pet,
-                    hunger:this.state.pet.hunger>1?this.state.pet.hunger-1:0
+                    hunger:this.state.pet.hunger<10?this.state.pet.hunger+1:10
                   }
                 })
               }
@@ -271,8 +271,8 @@ export default class App extends React.Component {
                   toys:this.state.toys-1,
                   pet: {
                     ...this.state.pet,
-                    hunger:this.state.pet.hunger<=9?this.state.pet.hunger+1:10,
-                    happiness: this.state.pet.hunger>8?this.state.pet.happiness-1:this.state.pet.happiness+1,
+                    hunger:this.state.pet.hunger>0?this.state.pet.hunger-1:0,
+                    happiness: (this.state.pet.hunger<2)&&(this.state.pet.happiness>0)&&(this.state.pet.happiness<10)?this.state.pet.happiness-1:this.state.pet.happiness+1,
                     health: this.random(5)&&this.state.health>0?this.state.pet.health-1:this.state.pet.health
                   }
                 })

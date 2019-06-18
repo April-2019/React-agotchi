@@ -38,16 +38,7 @@ class Home extends React.Component {
 
 
   setupIntervals = () => {
-    // this.healthInterval = setInterval( this.doHealthInterval , 30000 )
-    // this.funInterval = setInterval( this.doFunInterval, 17000 )
-    // this.ageInterval = setInterval( this.doAgeInterval, 40000 )
-    // this.hungerInterval = setInterval( this.doHungerInterval, 25000 )
-    // this.deathInterval = setInterval( this.doDeathInterval, 1000 )
-    // this.stageInterval = setInterval( this.doStageInterval, 1000 )
-
-
-    this.petUpdateInterval = setInterval(this.doPetUpdateInterval,1000)
-
+    this.petUpdateInterval = setInterval(this.doPetUpdateInterval,5000)
   }
 
 
@@ -56,6 +47,7 @@ class Home extends React.Component {
 
     if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
 
+      var arbitraryNumber = 3;
       var attributeChanged = false;
       var newHealth = this.props.state.pet.health;
       var newHappiness = this.props.state.pet.happiness;
@@ -63,17 +55,17 @@ class Home extends React.Component {
       var newHunger = this.props.state.pet.hunger;
       var newStage = this.props.state.pet.stage;
 
-      if( (this.m%17 === 0) && ( newHunger > 0 ) ) {
+      if( (this.m%arbitraryNumber === 0) && ( newHunger > 0 ) ) {
         newHunger--;
         attributeChanged = true;
       }
 
-      if( (this.m%15 === 0) && (newHunger < 4) && (newHealth > 0) ) {
+      if( (this.m%arbitraryNumber === 0) && (newHunger < 4) && (newHealth > 0) ) {
         newHealth--;
         attributeChanged = true;
       }
 
-      if( this.m % 30 === 0 ) {
+      if( this.m % arbitraryNumber === 0 ) {
         newAge++;
         attributeChanged = true;
       }
@@ -88,12 +80,12 @@ class Home extends React.Component {
         attributeChanged = true;
       }
 
-      if( (newAge === 10) && (newStage !== 3) ) {
+      if( (newAge === 7) && (newStage !== 3) ) {
         newStage = 3;
         attributeChanged = true;
       }
 
-      if( this.m % 20 === 0 ) {
+      if( this.m % arbitraryNumber === 0 ) {
         if(newHappiness > 0) {
           newHappiness--;
           attributeChanged = true;
@@ -124,74 +116,9 @@ class Home extends React.Component {
   }
 
 
-  // doStageInterval = () => {
-  //   if(  this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
-  //     if(this.props.state.pet.age === 5) {
-  //       this.props.setPetAttributes( { stage: 2 } );
-  //     }
-
-  //     if(this.props.state.pet.age === 10) {
-  //       this.props.setPetAttributes( {stage: 3} );
-  //     }
-  //   }
-  // }
-
-  // doHealthInterval = () => {
-  //   if( (this.props.state.pet) && (Object.keys(this.props.state.pet).length > 0) && (this.props.state.pet.hunger < 4) && (this.props.state.pet.health > 0) ) {
-  //     this.props.setPetAttributes( {health: this.props.state.pet.health - 1})
-  //   }
-  // }
-
-  // doFunInterval = () => {
-  //   if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
-  //     var numToSubtract = 0;
-
-  //     if( this.props.state.pet.happiness > 0) {
-  //       numToSubtract = 1;
-  //     }
-
-  //     if((this.props.state.pet.hunger <= 3) && (this.props.state.pet.happiness > 1)) {
-  //       numToSubtract = 2; 
-  //     }
-
-  //     this.props.setPetAttributes( { happiness: this.props.state.pet.happiness - numToSubtract } );
-  //   }
-  // }
-
-  // doAgeInterval = () => {
-  //   if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
-  //     if(this.props.state.pet.age < 10) {
-  //       this.props.setPetAttributes({ age: this.props.state.pet.age + 1 } );
-  //     }
-  //   }
-  // }
-
-  // doHungerInterval = () => {
-  //   if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
-  //     if( this.props.state.pet.hunger > 0) {
-  //       this.props.setPetAttributes({hunger: this.props.state.pet.hunger - 1});
-  //     }
-  //   }
-  // }
-
-  // doDeathInterval = () => {
-  //   if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
-  //     if( this.props.state.pet.age >= 50 ) {
-  //       this.props.setPetAttributes({health:0})
-  //       // TODO: autosave here
-  //     }
-  //   }
-  // }
-
 
 
   componentWillUnmount() {
-    // clearInterval(this.healthInterval);
-    // clearInterval(this.funInterval);
-    // clearInterval(this.ageInterval);
-    // clearInterval(this.hungerInterval);
-    // clearInterval(this.deathInterval);
-    // clearInterval(this.stageInterval);
     clearInterval(this.petUpdateInterval);
   }
 
@@ -199,7 +126,6 @@ class Home extends React.Component {
 
 
   componentDidMount() {
-    this.autoSaveInterval = setInterval(()=>{this.props.save(this.state.username, this.props.state.money)}, 20000)
     this
       .props
       .loggedIn((username) => {
@@ -233,9 +159,6 @@ class Home extends React.Component {
        () => this.props.history.push("/"));
   }
 
-  componentWillUnmount() {
-    clearInterval(this.autoSaveInterval)
-  }
 
   handleLogoutClick = () => {
     this.props.logOut();
@@ -334,7 +257,7 @@ class Home extends React.Component {
           <label>Age: {this.props.pet.age}</label>
           <label>Health: {this.props.pet.health}</label>
           <Progress percent={this.props.pet.health*10} color='red'/>
-          <label>Hunger: {this.props.pet.hunger}</label>
+          <label>Fullness: {this.props.pet.hunger}</label>
           <Progress percent={this.props.pet.hunger*10} color='green'/>
           <label>Fun: {this.props.pet.happiness}</label>
           <Progress percent={this.props.pet.happiness*10} color='blue'/>
