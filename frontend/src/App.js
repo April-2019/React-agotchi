@@ -25,6 +25,10 @@ export default class App extends React.Component {
   }
 
     buyApple = (username) => {
+        if(this.state.money < 4) {
+          alert("Not enough money")
+          return
+        }
         fetch(`${constants.apiUrl}/foods`, {
           method: 'POST',
           headers: {
@@ -42,10 +46,14 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(this.setState({money: this.state.money-4, apple: this.state.apple+1}))
+        .then(() => this.setState({money: this.state.money-4, apple: this.state.apple+1}))
       }
     
       buyToy = (username) => {
+        if(this.state.money < 3) {
+          alert("Not enough money")
+          return
+        }
         fetch(`${constants.apiUrl}/toys`, {
           method: 'POST',
           headers: {
@@ -62,10 +70,14 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(this.setState({money: this.state.money-3,toys:this.state.toys+1}))
+        .then(() => this.setState({money: this.state.money-3,toys:this.state.toys+1}))
       }
     
       buyMedicine = (username) => {
+        if(this.state.money < 2) {
+          alert("Not enough money")
+          return
+        }
         fetch(`${constants.apiUrl}/healths`, {
           method: 'POST',
           headers: {
@@ -82,7 +94,7 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(this.setState({money: this.state.money-2,medicine:this.state.medicine+1}))
+        .then(() => this.setState({money: this.state.money-2,medicine:this.state.medicine+1}))
       }
 
   fetchUser = (username) => {
@@ -151,20 +163,20 @@ export default class App extends React.Component {
         )
     }
 
-    updateUser = (username, money) => {
-      fetch(`${constants.apiUrl}/users/${username}`, {
+    updateMoney = (username, money) => {
+      return fetch(`${constants.apiUrl}/users/${username}`, {
         method: 'PATCH',
         headers: {
             "Content-Type":"application/json",
             "Authorization":`Bearer ${localStorage.getItem("token")}`
           },
-        body: JSON.stringify({money})
+        body: JSON.stringify({"data":{"money":money}})
       })
     }
 
     
     updatePet = (username) => {
-      fetch(`${constants.apiUrl}/pets/${this.state.pet.id}`, {
+      return fetch(`${constants.apiUrl}/pets/${this.state.pet.id}`, {
         method: 'PATCH',
         headers: {
             "Content-Type":"application/json",
@@ -198,7 +210,7 @@ export default class App extends React.Component {
                   apple:this.state.apple-1,
                   pet: {
                     ...this.state.pet,
-                    hunger:this.state.pet.hunger+0.7>10?10:this.state.pet.hunger+0.7
+                    hunger:this.state.pet.hunger+1>10?10:this.state.pet.hunger+1
                   }
                 })
               }
@@ -228,7 +240,7 @@ export default class App extends React.Component {
                   medicine:this.state.medicine-1,
                   pet:{
                     ...this.state.pet,
-                    health: this.state.pet.health+2.5>10?10:this.state.pet.health+2.5
+                    health: this.state.pet.health+2>10?10:this.state.pet.health+2
                   }
                 })
               }
@@ -258,8 +270,8 @@ export default class App extends React.Component {
                   toys:this.state.toys-1,
                   pet: {
                     ...this.state.pet,
-                    hunger:this.state.pet.hunger>=0.5?this.state.pet.hunger-0.5:0,
-                    happiness: this.state.pet.hunger>2?this.state.pet.happiness+0.5:this.state.pet.happiness-0.2,
+                    hunger:this.state.pet.hunger>=1?this.state.pet.hunger-1:0,
+                    happiness: this.state.pet.hunger>2?this.state.pet.happiness+1:this.state.pet.happiness-1,
                     health: this.random(5)?this.state.pet.health-1:this.state.pet.health
                   }
                 })
@@ -348,7 +360,7 @@ export default class App extends React.Component {
                 <Route exact path="/" render={(props) => <Login {...props} loggedIn={this.loggedIn} login={this.login} setMoney={this.setMoney} logOut={this.logOut} />} />
                 <Route exact path="/register" render={(props) => <Register {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
                 <Route exact path="/home" render={(props) => <Home {...props} state={this.state} fetchMoney={this.fetchMoney} setMoney={this.setMoney} fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} deleteApple={this.deleteApple} deleteMedicine={this.deleteMedicine} deleteToy={this.deleteToy} updatePet={this.updatePet} />} />
-                <Route exact path="/store" render={(props) => <Store {...props} state={this.state} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyMedicine={this.buyMedicine} updateUser={this.updateUser} />}  />
+                <Route exact path="/store" render={(props) => <Store {...props} state={this.state} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyMedicine={this.buyMedicine} updateMoney={this.updateMoney} />}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
                 <Route exact path="/hatch" render={(props) => <Hatch {...props} pet={this.state.pet} fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} />} />
             </Router>
