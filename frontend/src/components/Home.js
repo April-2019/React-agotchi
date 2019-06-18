@@ -145,7 +145,7 @@ class Home extends React.Component {
         <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => {this.walkPet()}}>
           <div className="hidden content">Walk</div>
           <div className="visible content">
-            <i className="hand point right outline icon"></i>
+            <i className="map outline icon"></i>
           </div>
         </div>
         :
@@ -179,7 +179,7 @@ class Home extends React.Component {
         <Card>
         <Statistic>
         <Statistic.Value>{this.props.state.money}</Statistic.Value>
-        <Statistic.Label><img src={url} className="coin" /></Statistic.Label>
+        <Statistic.Label><img src={coinUrl} className="coin" /></Statistic.Label>
       </Statistic>
         <Statistic.Group size='tiny'>
         <Statistic>
