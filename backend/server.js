@@ -117,7 +117,7 @@ app.post('/login', cors(corsOptions), async function(req,res) {
               id:user.id
             }, SECRET,
             { expiresIn: '2h' });
-            return res.status(200).json({success:'Approved',token:token});
+            return res.status(200).json({success:'Approved',token:token,money:user.money});
           }
           return res.status(401).json({failed:'Unauthorized Access'});
         }
@@ -142,6 +142,7 @@ app.get("/loggedin",cors(corsOptions),async function(req,res) {
 
 
 
+
 // Change user password
 // steps:
 // 1. authorize user via JWT token
@@ -150,7 +151,7 @@ app.get("/loggedin",cors(corsOptions),async function(req,res) {
 // request format:
 // headers: {"Content-Type":"application/json"}
 // body: {"currentpassword":"<current password>", "newpassword":"<new password>"}
-app.patch('/users/:name', async function(req,res) {
+app.patch('/users/:name/password', async function(req,res) {
   var id = await getId(req.params.name);
   User.findByPk(id)
   .then(

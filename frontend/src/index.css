@@ -33,3 +33,27 @@
     background-size: cover
 }
 
+.hatch_background {
+    background: url('./images/hatch.jpg');
+    background-size: 100px;
+    top: auto;
+    left: auto
+}
+
+.hatch_div {
+    position: absolute;
+    top: 50%;
+    left: 43%
+
+
+}
+
+.hatch_name{
+    background-color: pink
+}
+
+.coin{
+    height: 50px;
+    width: 50px;
+    left: 0%
+}
