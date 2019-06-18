@@ -12,6 +12,7 @@ import {Container} from 'react-bootstrap'
 import constants from './constants'
 export default class App extends React.Component {
 
+
     state = {
         apple: 0,
         medicine: 0,
@@ -19,10 +20,9 @@ export default class App extends React.Component {
         money: 0,
         pet: {}
       }
-
   
-    componentDidMount() {
-    }
+  componentDidMount() {
+  }
 
     buyApple = (username) => {
         fetch(`${constants.apiUrl}/foods`, {
@@ -36,13 +36,13 @@ export default class App extends React.Component {
               name: username,
               data:{
                 name: 'apple',
-                price: 40,
-                filling: 7,
+                price: 4,
+                filling: 1,
                 healthy: true
               }
             })
         })
-        .then(this.setState({apple: this.state.apple+1}))
+        .then(this.setState({money: this.state.money-4, apple: this.state.apple+1}))
       }
     
       buyToy = (username) => {
@@ -57,12 +57,12 @@ export default class App extends React.Component {
               name: username,
               data:{
                 name: 'toy',
-                price: 20,
-                fun: 5
+                price: 3,
+                fun: 1
               }
             })
         })
-        .then(this.setState({toys:this.state.toys+1}))
+        .then(this.setState({money: this.state.money-3,toys:this.state.toys+1}))
       }
     
       buyMedicine = (username) => {
@@ -77,14 +77,26 @@ export default class App extends React.Component {
               name: username,
               data:{
                 name: 'Potion',
-                price: 15,
-                incval: 3
+                price: 2,
+                incval: 2
               }
             })
         })
-        .then(this.setState({medicine:this.state.medicine+1}))
+        .then(this.setState({money: this.state.money-2,medicine:this.state.medicine+1}))
       }
 
+  fetchUser = (username) => {
+    return fetch(`${constants.apiUrl}/users/${username}`,
+      {method:"GET",
+      headers:{"Content-Type":"application/json",
+          "Authorization":`Bearer ${localStorage.getItem("token")}`}}
+        ).then(res=>res.json())
+        .then(
+            user => {
+                    this.setState({money: user.money})
+            }
+        )
+      }
 
     fetchApples = (username) => {
         return fetch(`${constants.apiUrl}/users/${username}/foods`,
@@ -133,9 +145,37 @@ export default class App extends React.Component {
         .then(res=>res.json())
         .then(
             pets => {
-                this.setState({pet: pets.find( pet => (pet.health > 0) ) });
+              let currentPet = pets.find( pet => (pet.health > 0))
+                this.setState({pet: currentPet});
             }
         )
+    }
+
+    updateUser = (username, money) => {
+      fetch(`${constants.apiUrl}/users/${username}`, {
+        method: 'PATCH',
+        headers: {
+            "Content-Type":"application/json",
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        body: JSON.stringify({money})
+      })
+    }
+
+    
+    updatePet = (username) => {
+      fetch(`${constants.apiUrl}/pets/${this.state.pet.id}`, {
+        method: 'PATCH',
+        headers: {
+            "Content-Type":"application/json",
+            "Authorization":`Bearer ${localStorage.getItem("token")}`
+          },
+        body: JSON.stringify(
+          {
+            name: username,
+            data: this.state.pet
+          })
+      })
     }
 
     deleteApple = (username) => {
@@ -307,8 +347,8 @@ export default class App extends React.Component {
             <Router>
                 <Route exact path="/" render={(props) => <Login {...props} loggedIn={this.loggedIn} login={this.login} setMoney={this.setMoney} logOut={this.logOut} />} />
                 <Route exact path="/register" render={(props) => <Register {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
-                <Route exact path="/home" render={(props) => <Home {...props} state={this.state} fetchMoney={this.fetchMoney} setMoney={this.setMoney} fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} deleteApple={this.deleteApple} deleteMedicine={this.deleteMedicine} deleteToy={this.deleteToy}/>} />
-                <Route exact path="/store" render={(props) => <Store {...props} state={this.state} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyMedicine={this.buyMedicine}/>}  />
+                <Route exact path="/home" render={(props) => <Home {...props} state={this.state} fetchMoney={this.fetchMoney} setMoney={this.setMoney} fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} deleteApple={this.deleteApple} deleteMedicine={this.deleteMedicine} deleteToy={this.deleteToy} updatePet={this.updatePet} />} />
+                <Route exact path="/store" render={(props) => <Store {...props} state={this.state} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyMedicine={this.buyMedicine} updateUser={this.updateUser} />}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
                 <Route exact path="/hatch" render={(props) => <Hatch {...props} pet={this.state.pet} fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} />} />
             </Router>
