@@ -116,6 +116,7 @@ class Home extends React.Component {
         :
         null}
 
+
         {(this.props.pet && !this.state.stillloading)
         ?
         <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => this.props.deleteMedicine(this.state.username)}>
@@ -126,6 +127,7 @@ class Home extends React.Component {
         </div>
         :
         null}
+
 
         {(this.props.pet && !this.state.stillloading)
         ?
@@ -165,8 +167,6 @@ class Home extends React.Component {
         {this.props.pet?<Card>
           <label>{this.props.pet.name}</label>
           <label>Age: {this.props.pet.age}</label>
-          <label><img className='coin' src={coinUrl}></img></label>
-          <label>Health</label>
           <Progress percent={this.props.pet.health*10} color='red'/>
           <label>Hunger</label>
           <Progress percent={this.props.pet.hunger*10} color='green'/>
@@ -179,7 +179,7 @@ class Home extends React.Component {
         <Card>
         <Statistic>
         <Statistic.Value>{this.props.state.money}</Statistic.Value>
-        <Statistic.Label>Coin(s)</Statistic.Label>
+        <Statistic.Label><img src={url} className="coin" /></Statistic.Label>
       </Statistic>
         <Statistic.Group size='tiny'>
         <Statistic>

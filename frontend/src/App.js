@@ -50,7 +50,7 @@ export default class App extends React.Component {
       }
     
       buyToy = (username) => {
-        if(this.state.money < 3) {
+        if(this.state.money < 8) {
           alert("Not enough money")
           return
         }
@@ -65,16 +65,16 @@ export default class App extends React.Component {
               name: username,
               data:{
                 name: 'toy',
-                price: 3,
+                price:8,
                 fun: 1
               }
             })
         })
-        .then(() => this.setState({money: this.state.money-3,toys:this.state.toys+1}))
+        .then(() => this.setState({money: this.state.money-8,toys:this.state.toys+1}))
       }
     
       buyMedicine = (username) => {
-        if(this.state.money < 2) {
+        if(this.state.money < 15) {
           alert("Not enough money")
           return
         }
@@ -89,12 +89,12 @@ export default class App extends React.Component {
               name: username,
               data:{
                 name: 'Potion',
-                price: 2,
+                price: 15,
                 incval: 2
               }
             })
         })
-        .then(() => this.setState({money: this.state.money-2,medicine:this.state.medicine+1}))
+        .then(() => this.setState({money: this.state.money-15,medicine:this.state.medicine+1}))
       }
 
   fetchUser = (username) => {
