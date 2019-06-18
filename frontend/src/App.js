@@ -42,7 +42,10 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(this.setState({apple: this.state.apple+1}))
+        .then(this.setState({
+          apple: this.state.apple+1,
+          money: this.state.money-4
+        }))
       }
     
       buyToy = (username) => {
@@ -62,7 +65,10 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(this.setState({toys:this.state.toys+1}))
+        .then(this.setState({
+          toys:this.state.toys+1,
+          money:this.state.money-8
+        }))
       }
     
       buyMedicine = (username) => {
@@ -82,7 +88,11 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(this.setState({medicine:this.state.medicine+1}))
+        .then(this.setState({
+          medicine:this.state.medicine+1,
+          money:this.state.money-15
+        
+        }))
       }
 
 

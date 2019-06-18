@@ -85,7 +85,7 @@ class Home extends React.Component {
     return (
       <React.Fragment>
         <div
-          className="ui teal vertical animated large button"
+          className="ui pink vertical animated large button"
           tabIndex="0" onClick={() => this.props.deleteApple(this.state.username)}>
           <div className="hidden content">Feed</div>
           <div className="visible content">
@@ -94,7 +94,7 @@ class Home extends React.Component {
         </div>
 
         <div
-          className="ui teal vertical animated large button"
+          className="ui pink vertical animated large button"
           tabIndex="0"
           onClick={() => this.props.history.push("/store")}>
           <div className="hidden content">Shop</div>
@@ -103,21 +103,21 @@ class Home extends React.Component {
           </div>
         </div>
 
-        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => this.props.deleteMedicine(this.state.username)}>
+        <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => this.props.deleteMedicine(this.state.username)}>
           <div className="hidden content">Medicine</div>
           <div className="visible content">
             <i className="syringe icon"></i>
           </div>
         </div>
 
-        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => this.props.deleteToy(this.state.username)}>
+        <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => this.props.deleteToy(this.state.username)}>
           <div className="hidden content">Play</div>
           <div className="visible content">
             <i className="futbol outline icon"></i>
           </div>
         </div>
 
-        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => {this.walkPet()}}>
+        <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => {this.walkPet()}}>
           <div className="hidden content">Walk</div>
           <div className="visible content">
             <i className="hand point right outline icon"></i>
@@ -125,7 +125,7 @@ class Home extends React.Component {
         </div>
 
         <div
-          className="ui teal vertical animated large button"
+          className="ui red vertical animated large button"
           tabIndex="0" onClick={this.handleLogoutClick}>
           <div className="hidden content">Logout</div>
           <div className="visible content">
@@ -139,7 +139,7 @@ class Home extends React.Component {
         {this.props.pet?<Card>
           <label>{this.props.pet.name}</label>
           <label>Age: {this.props.pet.age}</label>
-          <label><img className='coin' src={coinUrl}></img></label>
+          <label><img className='coin' src={coinUrl}></img>: {this.props.state.money} </label>
           <lable>Health</lable>
           <Progress percent={this.props.pet.health*10} color='red'/>
           <label>Hunger</label>
