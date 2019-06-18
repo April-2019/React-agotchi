@@ -5,18 +5,36 @@ import './some.css'
 
 class Home extends React.Component {
 
-  state = {username:""}
-
+  
   constructor(){
     super();
     this.state={
-      stillloading: true
+      stillloading: true,
+      username:"",
+      petStyle:{}
     }
   }
   redirectToHatch = () => {
     this.props.history.push('/hatch')
   }
 
+  walkPet = () => {
+    this.setState({petStyle:{"position":"absolute","left":`${0}px`}});
+    var interval = setInterval(
+      () => {
+        var curPos = parseInt(this.state.petStyle.left.split("p")[0])
+        this.setState({petStyle:{"position":"absolute","left":`${curPos+1}px`}});
+        if(Math.random() < 0.01) {
+          alert("You found a coin!");
+          this.props.setMoney(this.props.state.money+1);
+        }
+      },10
+    );
+    setTimeout(() => {
+      this.setState({petStyle:{}});
+      clearInterval(interval);
+    },10000);
+  }
 
   componentDidMount() {
     this
@@ -36,6 +54,11 @@ class Home extends React.Component {
                 .then(
                   () => {
                     this.props.fetchMedicine(this.state.username)
+                    .then(
+                      () => {
+                        this.props.fetchMoney(this.state.username)
+                      }
+                    )
                   }
                 )
               }
@@ -92,6 +115,13 @@ class Home extends React.Component {
           </div>
         </div>
 
+        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => {this.walkPet()}}>
+          <div className="hidden content">Walk</div>
+          <div className="visible content">
+            <i className="hand point right outline icon"></i>
+          </div>
+        </div>
+
         <div
           className="ui teal vertical animated large button"
           tabIndex="0" onClick={this.handleLogoutClick}>
@@ -102,12 +132,12 @@ class Home extends React.Component {
         </div>
 
         <div>
-          {(this.props.pet && !this.state.stillloading) ? <Pet pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
+          {(this.props.pet && !this.state.stillloading) ? <Pet style={this.state.petStyle} pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
         </div>
         {this.props.pet?<Card>
           <label>{this.props.pet.name}</label>
           <label>Age: {this.props.pet.age}</label>
-          <lable>Health</lable>
+          <label>Health</label>
           <Progress percent={this.props.pet.health*10} color='red'/>
           <label>Hunger</label>
           <Progress percent={this.props.pet.hunger*10} color='green'/>

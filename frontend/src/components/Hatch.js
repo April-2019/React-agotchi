@@ -144,7 +144,7 @@ export default class Hatch extends Component{
             <div>
                 This is to make a Pet
                 <form onSubmit={this.handleSubmit} >
-                    <input type="text"></input>
+                    <input type="text" />
                     <select>
                         <option value="pikachu">Pikachu</option>
                         <option value="sylveon">Sylveon</option>
@@ -152,7 +152,7 @@ export default class Hatch extends Component{
                         <option value="scyther">Scyther</option>
                         <option value="poplio">Poplio</option>
                     </select>
-                    <input type="submit"  ></input>
+                    <input type="submit" />
                 </form>
                 <div id="leftEgg" style={{"display":"none","width":"500px","height":"500px","position":"absolute","left":"100px","top":"100px"}}>
                     <img src="egg.png" width="500" height="500" />
