@@ -19,13 +19,12 @@ class Home extends React.Component {
   }
 
   walkPet = () => {
-    this.setState({petStyle:{"position":"absolute","left":`${0}px`}});
+    this.setState({petStyle:{"position":"absolute","left":`${400}px`,"top":`200px`}});
     var interval = setInterval(
       () => {
         var curPos = parseInt(this.state.petStyle.left.split("p")[0])
-        this.setState({petStyle:{"position":"absolute","left":`${curPos+1}px`}});
-        if(Math.random() < 0.01) {
-          alert("You found a coin!");
+        this.setState({petStyle:{"position":"absolute","left":`${curPos+1}px`,"top":`200px`}});
+        if(Math.random() < 0.0075) {
           this.props.setMoney(this.props.state.money+1);
         }
       },10
