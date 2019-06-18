@@ -104,7 +104,7 @@ class Home extends React.Component {
           </div>
         </div>
         <div>
-          {(!this.props.pet && !this.state.stillloading) ? <Pet pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
+          {(this.props.pet && !this.state.stillloading) ? <Pet pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
         </div>
         <Card>
           <label>{this.props.pet.name}</label>
