@@ -1,4 +1,7 @@
 import React, { Component } from 'react'
+import { Button, Input, Icon } from 'semantic-ui-react'
+import '../index.css'
+
 
 import constants from '../constants'
 
@@ -99,7 +102,7 @@ export default class Hatch extends Component{
 
     handleSubmit = (e) => {
         e.preventDefault();
-        let pet = this.ob[e.target.children[1].value](e.target.children[0].value);
+        let pet = this.ob[e.target.children[0].children[0].value](e.target.children[0].children[1].value);
         e.target.reset();
         e.target.style = "display: none";
         fetch(`${constants.apiUrl}/pets`,
@@ -140,19 +143,26 @@ export default class Hatch extends Component{
     }
 
     render(){
+        document
+        .body
+        .setAttribute('class', 'hatch_background')
         return(
             <div>
-                This is to make a Pet
-                <form onSubmit={this.handleSubmit} >
-                    <input type="text" />
-                    <select>
+                <form className="hatch_div" onSubmit={this.handleSubmit}  >
+                    <div class="ui input focus">
+                    <select class="ui search dropdown">
                         <option value="pikachu">Pikachu</option>
                         <option value="sylveon">Sylveon</option>
                         <option value="charmander">Charmander</option>
                         <option value="scyther">Scyther</option>
                         <option value="poplio">Poplio</option>
                     </select>
-                    <input type="submit" />
+                    <input type="text" placeholder="Pet name..." />
+                    <button type="submit" class="ui pink labeled icon button" >
+                        Get crackn'!
+                    <i class="heart icon"/>
+                    </button>
+                    </div>
                 </form>
                 <div id="leftEgg" style={{"display":"none","width":"500px","height":"500px","position":"absolute","left":"100px","top":"100px"}}>
                     <img src="egg.png" width="500" height="500" />
