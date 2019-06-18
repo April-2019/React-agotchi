@@ -334,13 +334,15 @@ export default class App extends React.Component {
       this.setState({money:money});
     }
 
-    setPetAttributes = (petAttributes) => {
-      this.setState({pet: {...this.state.pet, ...petAttributes}})
+    setPetAttributes = (petAttributes,callback) => {
+      this.setState({pet: {...this.state.pet, ...petAttributes}},callback)
     }
 
     save = (username, money) => {
-      this.updatePet(username)
-      this.updateMoney(username, money)
+      if( this.state.pet && (Object.keys(this.state.pet).length > 0) ) {
+        this.updatePet(username)
+        this.updateMoney(username, money)
+      }
     }
 
     logOut = () => {
