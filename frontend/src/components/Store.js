@@ -25,11 +25,13 @@ export default class Store extends React.Component {
 
 
   backHome = () => {
-    this.props.updateUser(this.state.username, this.props.state.money)
-    this.setState({
-      username:""
+    this.props.updateMoney(this.state.username, this.props.state.money)
+    .then( () => {
+      // this.setState({
+      //   username:""
+      // })
+      this.props.history.push('/home')
     })
-    this.props.history.push('/home')
   }
 
   render() {
