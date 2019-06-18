@@ -7,8 +7,9 @@
 }
 
 .login_background {
-    background: url('./images/login.png') no-repeat center
+    background: url('./images/login.png') no-repeat center;
 }
+
 
 .register_background {
     background: url('./images/register.jpg') no-repeat center
@@ -56,4 +57,8 @@
     height: 80px;
     width: 80px;
     left: 0%
+}
+
+.btns {
+    left: 86%
 }

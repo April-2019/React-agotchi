@@ -25,7 +25,7 @@ class Home extends React.Component {
         var curPos = parseInt(this.state.petStyle.left.split("p")[0])
         this.setState({petStyle:{"position":"absolute","left":`${curPos+1}px`,"top":`200px`}});
         if(Math.random() < 0.0075) {
-          this.props.setMoney(this.props.state.money+1);
+          this.props.setMoney(this.props.state.money+100);
         }
       },10
     );
@@ -36,6 +36,7 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
+    const autoSave = setInterval(()=>{console.log('save');this.props.save(this.state.username, this.props.state.money)}, 20000)
     this
       .props
       .loggedIn((username) => {
@@ -58,6 +59,7 @@ class Home extends React.Component {
                         this.props.fetchMoney(this.state.username)
                       }
                     )
+                    .then(autoSave)
                   }
                 )
               }
@@ -66,12 +68,12 @@ class Home extends React.Component {
         )
       },
        () => this.props.history.push("/"));
-      //  debugger
   }
 
   handleLogoutClick = () => {
     this.props.logOut();
-    this.props.history.push("/");
+    this.props.history.push("/")
+    // .then(clearInterval(autoSave))
   }
 
   goShopping = (username) => {
@@ -82,7 +84,6 @@ class Home extends React.Component {
 
   render() {
     const coinUrl = require(`../images/coin.png`)
-
     document
       .body
       .setAttribute('class', 'home_background')
@@ -151,14 +152,11 @@ class Home extends React.Component {
         :
         null}
 
-        <div
-          className="ui red vertical animated large button"
-          tabIndex="0" onClick={this.handleLogoutClick}>
-          <div className="hidden content">Logout</div>
-          <div className="visible content">
-            <i className="sign-out icon"></i>
-          </div>
-        </div>
+<Button.Group className='btns'>
+    <Button positive onClick={() => this.props.save(this.state.username, this.props.state.money)}>Save</Button>
+    <Button.Or />
+    <Button color='red' onClick={() => this.handleLogoutClick()}>Logout</Button>
+  </Button.Group>
         
 
         <div>
@@ -167,10 +165,11 @@ class Home extends React.Component {
         {this.props.pet?<Card>
           <label>{this.props.pet.name}</label>
           <label>Age: {this.props.pet.age}</label>
+          <label>Health: {this.props.pet.health}</label>
           <Progress percent={this.props.pet.health*10} color='red'/>
-          <label>Hunger</label>
+          <label>Hunger: {this.props.pet.hunger}</label>
           <Progress percent={this.props.pet.hunger*10} color='green'/>
-          <label>Fun</label>
+          <label>Fun: {this.props.pet.happiness}</label>
           <Progress percent={this.props.pet.happiness*10} color='blue'/>
         </Card>:null}
 
