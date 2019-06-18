@@ -117,7 +117,7 @@ app.post('/login', cors(corsOptions), async function(req,res) {
               id:user.id
             }, SECRET,
             { expiresIn: '2h' });
-            return res.status(200).json({success:'Approved',token:token});
+            return res.status(200).json({success:'Approved',token:token,money:user.money});
           }
           return res.status(401).json({failed:'Unauthorized Access'});
         }
@@ -142,6 +142,7 @@ app.get("/loggedin",cors(corsOptions),async function(req,res) {
 
 
 
+
 // Change user password
 // steps:
 // 1. authorize user via JWT token
@@ -150,7 +151,7 @@ app.get("/loggedin",cors(corsOptions),async function(req,res) {
 // request format:
 // headers: {"Content-Type":"application/json"}
 // body: {"currentpassword":"<current password>", "newpassword":"<new password>"}
-app.patch('/users/:name', async function(req,res) {
+app.patch('/users/:name/password', async function(req,res) {
   var id = await getId(req.params.name);
   User.findByPk(id)
   .then(
@@ -165,7 +166,7 @@ app.patch('/users/:name', async function(req,res) {
               if(err) {
                 return res.status(500).json({error:"error creating hash"});
               } else {
-                return !!user.update({passwordhash:hash})
+                return !!User.update({passwordhash:hash},{where:{id:user.id}})
                 .then( () => res.json({success:"operation completed"}))
                 .catch(() => res.json({failed:"operation failed"}));
               }
@@ -512,7 +513,7 @@ app.patch('/users/:name', async (req,res) => {
     User.findByPk(userId)
     .then(
       user => {
-        user.update({money: req.data.money})
+        User.update({money: req.body.data.money},{where:{id:user.id}})
         .then(() => res.json({status:"success"}))
         .catch(() => res.json({status:"failed"}));
       }
@@ -530,14 +531,14 @@ app.patch('/users/:name', async (req,res) => {
 app.patch('/pets/:id', async(req, resp) => {
   var userId = await getId(req.body.name);
   Pet.findByPk(req.params.id)
-  .then( async pet => {
+  .then( pet => {
     if( (parseInt(pet["userId"]) !== userId) || 
       (req.body.data.userId && (parseInt(req.body.data.userId) !== userId))) {
       resp.json({"error":"invalid input"})
     } else {
       authorizeUser( req, resp, pet["userId"],
         () => {
-          pet.update(req.body.data)
+          Pet.update(req.body.data, {where:{id:pet.id}})
           .then( () => resp.json(pet) )
           .catch( () => resp.json({"error":"could not update pet"}) );
       });

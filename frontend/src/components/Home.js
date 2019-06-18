@@ -5,18 +5,35 @@ import './some.css'
 
 class Home extends React.Component {
 
-  state = {username:""}
-
+  
   constructor(){
     super();
     this.state={
-      stillloading: true
+      stillloading: true,
+      username:"",
+      petStyle:{}
     }
   }
   redirectToHatch = () => {
     this.props.history.push('/hatch')
   }
 
+  walkPet = () => {
+    this.setState({petStyle:{"position":"absolute","left":`${400}px`,"top":`200px`}});
+    var interval = setInterval(
+      () => {
+        var curPos = parseInt(this.state.petStyle.left.split("p")[0])
+        this.setState({petStyle:{"position":"absolute","left":`${curPos+1}px`,"top":`200px`}});
+        if(Math.random() < 0.0075) {
+          this.props.setMoney(this.props.state.money+1);
+        }
+      },10
+    );
+    setTimeout(() => {
+      this.setState({petStyle:{}});
+      clearInterval(interval);
+    },10000);
+  }
 
   componentDidMount() {
     this
@@ -36,11 +53,11 @@ class Home extends React.Component {
                 .then(
                   () => {
                     this.props.fetchMedicine(this.state.username)
-                  }
-                )
-                .then(
-                  () => {
-                    this.props.fetchUser(this.state.username)
+                    .then(
+                      () => {
+                        this.props.fetchMoney(this.state.username)
+                      }
+                    )
                   }
                 )
               }
@@ -59,27 +76,36 @@ class Home extends React.Component {
 
   goShopping = (username) => {
     this.props.updatePet(username)
-    return this.props.history.push("/store")
+    .then(res=>res.json())
+    .then(() => this.props.history.push("/store"))
   }
 
   render() {
+    const coinUrl = require(`../images/coin.png`)
+
     document
       .body
       .setAttribute('class', 'home_background')
       
     return (
       <React.Fragment>
+        {(this.props.pet && !this.state.stillloading)
+        ?
         <div
-          className="ui teal vertical animated large button"
+          className="ui pink vertical animated large button"
           tabIndex="0" onClick={() => this.props.deleteApple(this.state.username)}>
           <div className="hidden content">Feed</div>
           <div className="visible content">
             <i className="utensils icon"></i>
           </div>
         </div>
+        :
+        null}
 
+        {(this.props.pet && !this.state.stillloading)
+        ?
         <div
-          className="ui teal vertical animated large button"
+          className="ui pink vertical animated large button"
           tabIndex="0"
           onClick={() => this.goShopping(this.state.username) }>
           <div className="hidden content">Shop</div>
@@ -87,47 +113,73 @@ class Home extends React.Component {
             <i className="shop icon"></i>
           </div>
         </div>
+        :
+        null}
 
-        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => this.props.deleteMedicine(this.state.username)}>
+
+        {(this.props.pet && !this.state.stillloading)
+        ?
+        <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => this.props.deleteMedicine(this.state.username)}>
           <div className="hidden content">Medicine</div>
           <div className="visible content">
             <i className="syringe icon"></i>
           </div>
         </div>
+        :
+        null}
 
-        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => this.props.deleteToy(this.state.username)}>
+
+        {(this.props.pet && !this.state.stillloading)
+        ?
+        <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => this.props.deleteToy(this.state.username)}>
           <div className="hidden content">Play</div>
           <div className="visible content">
             <i className="futbol outline icon"></i>
           </div>
         </div>
+        :
+        null}
+ 
+        {(this.props.pet && !this.state.stillloading)
+         ?
+        <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => {this.walkPet()}}>
+          <div className="hidden content">Walk</div>
+          <div className="visible content">
+            <i className="hand point right outline icon"></i>
+          </div>
+        </div>
+        :
+        null}
 
         <div
-          className="ui teal vertical animated large button"
+          className="ui red vertical animated large button"
           tabIndex="0" onClick={this.handleLogoutClick}>
           <div className="hidden content">Logout</div>
           <div className="visible content">
             <i className="sign-out icon"></i>
           </div>
         </div>
+        
 
         <div>
-          {(this.props.pet && !this.state.stillloading) ? <Pet pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
+          {(this.props.pet && !this.state.stillloading) ? <Pet style={this.state.petStyle} pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
         </div>
         {this.props.pet?<Card>
           <label>{this.props.pet.name}</label>
           <label>Age: {this.props.pet.age}</label>
-          <lable>Health</lable>
           <Progress percent={this.props.pet.health*10} color='red'/>
           <label>Hunger</label>
           <Progress percent={this.props.pet.hunger*10} color='green'/>
           <label>Fun</label>
           <Progress percent={this.props.pet.happiness*10} color='blue'/>
         </Card>:null}
+
+        {(this.props.pet && !this.state.stillloading)
+        ?
         <Card>
         <Statistic>
         <Statistic.Value>{this.props.state.money}</Statistic.Value>
-        <Statistic.Label>Coin(s)</Statistic.Label>
+        <Statistic.Label><img src={url} className="coin" /></Statistic.Label>
       </Statistic>
         <Statistic.Group size='tiny'>
         <Statistic>
@@ -143,7 +195,9 @@ class Home extends React.Component {
         <Statistic.Label>Toys</Statistic.Label>
       </Statistic>
     </Statistic.Group>
+
     </Card>
+    : null }
       </React.Fragment>
     )
   }
