@@ -1,13 +1,7 @@
 import React from 'react'
-import { Button, Dropdown,Card,Progress } from 'semantic-ui-react'
+import { Button, Dropdown,Card,Progress, Statistic } from 'semantic-ui-react'
 import Pet from './pet/Pet'
 import './some.css'
-
-const options = [
-  { key: 'edit', icon: 'edit', text: 'Edit Post', value: 'edit' },
-  { key: 'delete', icon: 'delete', text: 'Remove Post', value: 'delete' },
-  { key: 'hide', icon: 'hide', text: 'Hide Post', value: 'hide' },
-]
 
 class Home extends React.Component {
 
@@ -54,13 +48,8 @@ class Home extends React.Component {
   }
 
   handleLogoutClick = () => {
-    this
-      .props
-      .logOut();
-    this
-      .props
-      .history
-      .push("/");
+    this.props.logOut();
+    this.props.history.push("/");
   }
 
   render() {
@@ -69,11 +58,10 @@ class Home extends React.Component {
       .setAttribute('class', 'home_background')
       
     return (
-
       <React.Fragment>
         <div
-          className="ui teal vertical animated button"
-          tabIndex="0">
+          className="ui teal vertical animated large button"
+          tabIndex="0" onClick={() => this.props.deleteApple(this.state.username)}>
           <div className="hidden content">Feed</div>
           <div className="visible content">
             <i className="utensils icon"></i>
@@ -81,7 +69,7 @@ class Home extends React.Component {
         </div>
 
         <div
-          className="ui teal vertical animated button"
+          className="ui teal vertical animated large button"
           tabIndex="0"
           onClick={() => this.props.history.push("/store")}>
           <div className="hidden content">Shop</div>
@@ -90,32 +78,58 @@ class Home extends React.Component {
           </div>
         </div>
 
-        <div className="ui teal vertical animated button" tabIndex="0">
+        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => this.props.deleteMedicine(this.state.username)}>
           <div className="hidden content">Medicine</div>
           <div className="visible content">
             <i className="syringe icon"></i>
           </div>
         </div>
 
-        <div className="ui teal vertical animated button" tabIndex="0">
+        <div className="ui teal vertical animated large button" tabIndex="0" onClick={() => this.props.deleteToy(this.state.username)}>
           <div className="hidden content">Play</div>
           <div className="visible content">
-            <i className="table tennis icon"></i>
+            <i className="futbol outline icon"></i>
           </div>
         </div>
+
+        <div
+          className="ui teal vertical animated large button"
+          tabIndex="0" onClick={this.handleLogoutClick}>
+          <div className="hidden content">Logout</div>
+          <div className="visible content">
+            <i className="sign-out icon"></i>
+          </div>
+        </div>
+
         <div>
           {(this.props.pet && !this.state.stillloading) ? <Pet pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
         </div>
-        <Card>
+        {this.props.pet?<Card>
           <label>{this.props.pet.name}</label>
-          <label>Age: {this.props.age}</label>
+          <label>Age: {this.props.pet.age}</label>
           <lable>Health</lable>
-          <Progress percent={this.props.pet.health} color='red'/>
+          <Progress percent={this.props.pet.health*10} color='red'/>
           <label>Hunger</label>
-          <Progress percent={this.props.pet.hunger} color='green'/>
+          <Progress percent={this.props.pet.hunger*10} color='green'/>
           <label>Fun</label>
-          <Progress percent={this.props.pet.happiness} color='blue'/>
-        </Card>
+          <Progress percent={this.props.pet.happiness*10} color='blue'/>
+        </Card>:null}
+        <Card>
+        <Statistic.Group size='tiny'>
+        <Statistic>
+        <Statistic.Value>{this.props.state.apple}</Statistic.Value>
+        <Statistic.Label>Apple(s)</Statistic.Label>
+      </Statistic>
+      <Statistic>
+        <Statistic.Value>{this.props.state.medicine}</Statistic.Value>
+        <Statistic.Label>Potion(s)</Statistic.Label>
+      </Statistic>
+      <Statistic>
+        <Statistic.Value>{this.props.state.toys}</Statistic.Value>
+        <Statistic.Label>Toys</Statistic.Label>
+      </Statistic>
+    </Statistic.Group>
+    </Card>
       </React.Fragment>
     )
   }

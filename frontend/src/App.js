@@ -7,6 +7,7 @@ import Register from './components/Register'
 import Graveyard from './components/Graveyard'
 import Hatch from './components/Hatch'
 import 'semantic-ui-css/semantic.min.css'
+import {Message} from 'semantic-ui-react'
 import {Container} from 'react-bootstrap'
 import constants from './constants'
 export default class App extends React.Component {
@@ -22,6 +23,67 @@ export default class App extends React.Component {
     componentDidMount() {
     }
 
+    buyApple = (username) => {
+        fetch(`${constants.apiUrl}/foods`, {
+          method: 'POST',
+          headers: {
+              "Content-Type":"application/json",
+              "Authorization":`Bearer ${localStorage.getItem("token")}`
+            },
+          body: JSON.stringify(
+            {
+              name: username,
+              data:{
+                name: 'apple',
+                price: 40,
+                filling: 7,
+                healthy: true
+              }
+            })
+        })
+        .then(this.setState({apple: this.state.apple+1}))
+      }
+    
+      buyToy = (username) => {
+        fetch(`${constants.apiUrl}/toys`, {
+          method: 'POST',
+          headers: {
+              "Content-Type":"application/json",
+              "Authorization":`Bearer ${localStorage.getItem("token")}`
+            },
+          body: JSON.stringify(
+            {
+              name: username,
+              data:{
+                name: 'toy',
+                price: 20,
+                fun: 5
+              }
+            })
+        })
+        .then(this.setState({toys:this.state.toys+1}))
+      }
+    
+      buyMedicine = (username) => {
+        fetch(`${constants.apiUrl}/healths`, {
+          method: 'POST',
+          headers: {
+              "Content-Type":"application/json",
+              "Authorization":`Bearer ${localStorage.getItem("token")}`
+            },
+          body: JSON.stringify(
+            {
+              name: username,
+              data:{
+                name: 'Potion',
+                price: 15,
+                incval: 3
+              }
+            })
+        })
+        .then(this.setState({medicine:this.state.medicine+1}))
+      }
+
 
     fetchApples = (username) => {
         return fetch(`${constants.apiUrl}/users/${username}/foods`,
@@ -31,13 +93,46 @@ export default class App extends React.Component {
         ).then(res=>res.json())
         .then(
             foods => {
-                foods.forEach(
-                    food => {
-                        if(food.name === "apple" ) {
-                          this.setState({apple: this.state.apple+1})
-                        }
-                    }
-                );
+                let num = foods.filter(food => food.name === 'apple').length
+                          this.setState({apple: num})
+            }
+        )
+      }
+
+    fetchToys = (username) => {
+        return fetch(`${constants.apiUrl}/users/${username}/toys`,
+          {method:"GET",
+          headers:{"Content-Type":"application/json",
+          "Authorization":`Bearer ${localStorage.getItem("token")}`}}
+        ).then(res=>res.json())
+        .then(
+            toys => {
+              let num = toys.filter(toy => toy.name === 'toy').length
+              this.setState({toys: num})}
+          );
+    }
+
+    fetchMedicine = (username) => {
+        return fetch(`${constants.apiUrl}/users/${username}/healths`,
+          {method:"GET",
+          headers:{"Content-Type":"application/json",
+          "Authorization":`Bearer ${localStorage.getItem("token")}`}}
+        ).then(res=>res.json())
+        .then(
+            healths => {
+                  let num = healths.filter(medicine => medicine.name === 'Potion').length
+                  this.setState({medicine: num})}
+        )
+      }
+
+    fetchCurrentPet = (username) => {
+        return fetch(`${constants.apiUrl}/users/${username}/pets`,{method:"GET",
+        headers:{"Content-Type":"application/json",
+        "Authorization":`Bearer ${localStorage.getItem("token")}`}})
+        .then(res=>res.json())
+        .then(
+            pets => {
+                this.setState({pet: pets.find( pet => (pet.health > 0) ) });
             }
         )
     }
@@ -58,10 +153,16 @@ export default class App extends React.Component {
                "Authorization":`Bearer ${localStorage.getItem("token")}`}}
             ).then(
               () => {
-                this.setState({apple:this.state.apple-1})
+                this.setState({
+                  apple:this.state.apple-1,
+                  pet: {
+                    ...this.state.pet,
+                    hunger:this.state.pet.hunger+0.7>10?10:this.state.pet.hunger+0.7
+                  }
+                })
               }
             )
-          }
+          } else {alert('You need more food!')}
         }
       )
     }
@@ -73,7 +174,7 @@ export default class App extends React.Component {
           "Authorization":`Bearer ${localStorage.getItem("token")}`}})
       .then(res=>res.json()).then(
         healths => {
-          let medicines = healths.filter(health => (health.name === "medicine"))
+          let medicines = healths.filter(health => (health.name === "Potion"))
           if(medicines.length > 0) {
             let medicineId = medicines[0].id
             fetch(`${constants.apiUrl}/healths/${medicineId}`,
@@ -82,7 +183,13 @@ export default class App extends React.Component {
                "Authorization":`Bearer ${localStorage.getItem("token")}`}}
             ).then(
               () => {
-                this.setState({medicine:this.state.medicine-1})
+                this.setState({
+                  medicine:this.state.medicine-1,
+                  pet:{
+                    ...this.state.pet,
+                    health: this.state.pet.health+2.5>10?10:this.state.pet.health+2.5
+                  }
+                })
               }
             )
           }
@@ -90,53 +197,42 @@ export default class App extends React.Component {
       )
     }
 
-    fetchToys = (username) => {
-        return fetch(`${constants.apiUrl}/users/${username}/toys`,
-          {method:"GET",
+    deleteToy = (username) => {
+      fetch(`${constants.apiUrl}/users/${username}/toys`,
+      {method:"GET",
           headers:{"Content-Type":"application/json",
-          "Authorization":`Bearer ${localStorage.getItem("token")}`}}
-        ).then(res=>res.json())
-        .then(
-            toys => {
-                toys.forEach(
-                    toy => {   
-                        this.setState({toys: this.state.toys+1})
-                    }
-                );
-            }
-        )
+          "Authorization":`Bearer ${localStorage.getItem("token")}`}})
+      .then(res=>res.json()).then(
+        toys => {
+          let newToys = toys.filter(toy => (toy.name === "toy"))
+          if(newToys.length > 0) {
+            let toyId = toys[0].id
+            fetch(`${constants.apiUrl}/toys/${toyId}`,
+              {method:"DELETE", 
+               headers:{"Content-Type":"application/json",
+               "Authorization":`Bearer ${localStorage.getItem("token")}`}}
+            ).then(
+              () => {
+                this.setState({
+                  toys:this.state.toys-1,
+                  pet: {
+                    ...this.state.pet,
+                    hunger:this.state.pet.hunger>=0.5?this.state.pet.hunger-0.5:0,
+                    happiness: this.state.pet.hunger>2?this.state.pet.happiness+0.5:this.state.pet.happiness-0.2,
+                    health: this.random(5)?this.state.pet.health-1:this.state.pet.health
+                  }
+                })
+              }
+            )
+          } else {alert('You need more toys!')}
+        }
+      )
     }
 
-    fetchMedicine = (username) => {
-        return fetch(`${constants.apiUrl}/users/${username}/healths`,
-          {method:"GET",
-          headers:{"Content-Type":"application/json",
-          "Authorization":`Bearer ${localStorage.getItem("token")}`}}
-        ).then(res=>res.json())
-        .then(
-            healths => {
-                healths.forEach(
-                    health => {
-                        if(health.name === "medicine" ) {
-                          this.setState({medicine: this.state.medicine+1})
-                        }
-                    }
-                );
-            }
-        )
-    }
-
-
-    fetchCurrentPet = (username) => {
-        return fetch(`${constants.apiUrl}/users/${username}/pets`,{method:"GET",
-        headers:{"Content-Type":"application/json",
-        "Authorization":`Bearer ${localStorage.getItem("token")}`}})
-        .then(res=>res.json())
-        .then(
-            pets => {
-                this.setState({pet: pets.find( pet => (pet.health > 0) ) });
-            }
-        )
+    random = (percent) => {
+      let a = [1,2,3,4,5,6,7,8,9,10]
+      let b = a[Math.floor(Math.random() * a.length)]
+      if(b<percent){ return true} else {return false}
     }
 
     loggedIn = (successCallback, failureCallback) => {
@@ -171,64 +267,15 @@ export default class App extends React.Component {
 
 
     logOut = () => {
+      // fetchPet with 'PATCH' based on this.state.pet
         localStorage.setItem("token","");
         this.setState({
             food: 0,
             medicine: 0,
-            toys: 0
+            toys: 0,
+            pet: {}
         })
     }
-
-    buyApple = () => {
-    fetch('http://localhost:8000/foods', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-
-      })
-    })
-    .then(
-      this.setState({
-          apple: this.state.apple+1
-      })
-    )
-  }
-
-  buyToy = () => {
-    fetch('http://localhost:8000/toys', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-
-      })
-    })
-    .then(
-      this.props.setState({
-          toys: this.state.toys+1
-      })
-    )
-  }
-
-  buyHealthItem = () => {
-    fetch('http://localhost:8000/foods', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-
-      })
-    })
-    .then(
-      this.props.setState({
-          medicine: this.state.medicine+1
-      })
-    )
-  }
 
   // redirectToHatch = () => {
   //   this.props.history
@@ -243,9 +290,8 @@ export default class App extends React.Component {
             <Router>
                 <Route exact path="/" render={(props) => <Login {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
                 <Route exact path="/register" render={(props) => <Register {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
-
-                <Route exact path="/home" render={(props) => <Home {...props}  fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut}/>} />
-                <Route exact path="/store" render={(props) => <Store {...props} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyHealthItem={this.buyHealthItem}/>}  />
+                <Route exact path="/home" render={(props) => <Home {...props} state={this.state}  fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} deleteApple={this.deleteApple} deleteMedicine={this.deleteMedicine} deleteToy={this.deleteToy}/>} />
+                <Route exact path="/store" render={(props) => <Store {...props} state={this.state} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyMedicine={this.buyMedicine}/>}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
                 <Route exact path="/hatch" render={(props) => <Hatch {...props} pet={this.state.pet} fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} />} />
             </Router>
