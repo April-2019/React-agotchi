@@ -1,5 +1,6 @@
 import React from 'react'
 import constants from '../constants'
+import {Card, Statistic} from 'semantic-ui-react'
 // import {Form, Container, Col, Button, Row} from 'react-bootstrap'
 // import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 // import Register from './Register'
@@ -12,80 +13,12 @@ export default class Store extends React.Component {
   }
 
   componentDidMount() {
+    // fetchPet with 'PATCH' based on this.props.state.pet
     this.props.loggedIn(
         (username) => {this.setState({username:username})},
         () => this.props.history.push("/")
     );
   }
-
-  buyFood = () => {
-    fetch(`${constants.apiUrl}/foods`, {
-      method: 'POST',
-      headers: {
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${localStorage.getItem("token")}`
-        },
-      body: JSON.stringify(
-        {
-          name: this.state.username,
-          data:{
-            name: 'Good Food',
-            price: 40,
-            filling: 7,
-            healthy: true
-          }
-        })
-    })
-    .then(
-      alert('You bought an apple')
-      )
-  }
-
-  buyToy = () => {
-    fetch(`${constants.apiUrl}/toys`, {
-      method: 'POST',
-      headers: {
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${localStorage.getItem("token")}`
-        },
-      body: JSON.stringify(
-        {
-          name: this.state.username,
-          data:{
-            name: 'Teddy Bear',
-            price: 20,
-            fun: 5
-          }
-        })
-    })
-    .then(
-      alert('You bought a teddy bear')
-      )
-  }
-
-  buyMedicine = () => {
-    fetch(`${constants.apiUrl}/healths`, {
-      method: 'POST',
-      headers: {
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${localStorage.getItem("token")}`
-        },
-      body: JSON.stringify(
-        {
-          name: this.state.username,
-          data:{
-            name: 'Medicine',
-            price: 15,
-            incval: 3
-          }
-        })
-    })
-    .then(
-      alert('You bought a medicine')
-    )
-  }
-
-
 
 
   backHome = () => {
@@ -101,9 +34,25 @@ export default class Store extends React.Component {
     return (
     <React.Fragment>
       <div className="ui primary top attached button" tabIndex="0" onClick={() => this.backHome()}>Back Home</div>
-      <button className="positive ui button" onClick={() => this.buyFood()}>Buy Food</button>
-      <button className="positive ui button" onClick={() => this.buyToy()}>Buy Toy</button>
-      <button className="positive ui button" onClick={() => this.buyMedicine()}>Buy Medicine</button>
+      <button className="positive ui button" onClick={() => this.props.buyApple(this.state.username)}>Buy Food</button>
+      <button className="positive ui button" onClick={() => this.props.buyToy(this.state.username)}>Buy Toy</button>
+      <button className="positive ui button" onClick={() => this.props.buyMedicine(this.state.username)}>Buy Medicine</button>
+      <Card>
+        <Statistic.Group size='tiny'>
+        <Statistic>
+        <Statistic.Value>{this.props.state.apple}</Statistic.Value>
+        <Statistic.Label>Apple(s)</Statistic.Label>
+      </Statistic>
+      <Statistic>
+        <Statistic.Value>{this.props.state.medicine}</Statistic.Value>
+        <Statistic.Label>Potion(s)</Statistic.Label>
+      </Statistic>
+      <Statistic>
+        <Statistic.Value>{this.props.state.toys}</Statistic.Value>
+        <Statistic.Label>Toys</Statistic.Label>
+      </Statistic>
+    </Statistic.Group>
+    </Card>
     </React.Fragment>
     )
   }
