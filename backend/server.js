@@ -504,6 +504,21 @@ app.post('/toys', async (req, res) => {
 // Updating API (!!! Persisting Data !!!)
 //----------------------------------------------
 
+// patch the money only
+// {"data": { "money": <new total money> } } 
+app.patch('/users/:name', async (req,res) => {
+  var userId = await getId(req.params.name);
+  authorizeUser(req,res,userId, () => {
+    User.findByPk(userId)
+    .then(
+      user => {
+        user.update({money: req.data.money})
+        .then(() => res.json({status:"success"}))
+        .catch(() => res.json({status:"failed"}));
+      }
+    ).catch(() => res.json({status:"failed"}));
+  });
+});
 
 // Update a pet
 // Request format:

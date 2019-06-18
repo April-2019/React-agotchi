@@ -13,15 +13,19 @@ export default class Store extends React.Component {
   }
 
   componentDidMount() {
-    // fetchPet with 'PATCH' based on this.props.state.pet
     this.props.loggedIn(
         (username) => {this.setState({username:username})},
         () => this.props.history.push("/")
     );
   }
 
+  componentWillUnmount() {
+
+  }
+
 
   backHome = () => {
+    this.props.updateUser(this.state.username, this.props.state.money)
     this.setState({
       username:""
     })
@@ -37,8 +41,12 @@ export default class Store extends React.Component {
       <button className="positive ui button" onClick={() => this.props.buyApple(this.state.username)}>Buy Food</button>
       <button className="positive ui button" onClick={() => this.props.buyToy(this.state.username)}>Buy Toy</button>
       <button className="positive ui button" onClick={() => this.props.buyMedicine(this.state.username)}>Buy Medicine</button>
+      <Statistic>
+        <Statistic.Value>{this.props.state.money}</Statistic.Value>
+        <Statistic.Label>Coin(s)</Statistic.Label>
+      </Statistic>
       <Card>
-        <Statistic.Group size='tiny'>
+      <Statistic.Group size='tiny'>
         <Statistic>
         <Statistic.Value>{this.props.state.apple}</Statistic.Value>
         <Statistic.Label>Apple(s)</Statistic.Label>
@@ -49,7 +57,7 @@ export default class Store extends React.Component {
       </Statistic>
       <Statistic>
         <Statistic.Value>{this.props.state.toys}</Statistic.Value>
-        <Statistic.Label>Toys</Statistic.Label>
+        <Statistic.Label>Toy(s)</Statistic.Label>
       </Statistic>
     </Statistic.Group>
     </Card>

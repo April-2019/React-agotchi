@@ -38,6 +38,11 @@ class Home extends React.Component {
                     this.props.fetchMedicine(this.state.username)
                   }
                 )
+                .then(
+                  () => {
+                    this.props.fetchUser(this.state.username)
+                  }
+                )
               }
             )
           }
@@ -50,6 +55,11 @@ class Home extends React.Component {
   handleLogoutClick = () => {
     this.props.logOut();
     this.props.history.push("/");
+  }
+
+  goShopping = (username) => {
+    this.props.updatePet(username)
+    return this.props.history.push("/store")
   }
 
   render() {
@@ -71,7 +81,7 @@ class Home extends React.Component {
         <div
           className="ui teal vertical animated large button"
           tabIndex="0"
-          onClick={() => this.props.history.push("/store")}>
+          onClick={() => this.goShopping(this.state.username) }>
           <div className="hidden content">Shop</div>
           <div className="visible content">
             <i className="shop icon"></i>
@@ -115,6 +125,10 @@ class Home extends React.Component {
           <Progress percent={this.props.pet.happiness*10} color='blue'/>
         </Card>:null}
         <Card>
+        <Statistic>
+        <Statistic.Value>{this.props.state.money}</Statistic.Value>
+        <Statistic.Label>Coin(s)</Statistic.Label>
+      </Statistic>
         <Statistic.Group size='tiny'>
         <Statistic>
         <Statistic.Value>{this.props.state.apple}</Statistic.Value>
