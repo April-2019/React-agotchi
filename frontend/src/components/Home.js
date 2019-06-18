@@ -35,6 +35,88 @@ class Home extends React.Component {
     },10000);
   }
 
+
+  setupIntervals = () => {
+    this.healthInterval = setInterval( this.doHealthInterval , 30000 )
+    this.funInterval = setInterval( this.doFunInterval, 17000 )
+    this.ageInterval = setInterval( this.doAgeInterval, 40000 )
+    this.hungerInterval = setInterval( this.doHungerInterval, 25000 )
+    this.deathInterval = setInterval( this.doDeathInterval, 1000 )
+    this.stageInterval = setInterval( this.doStageInterval, 1000 )
+  }
+
+  doStageInterval = () => {
+    if(  this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
+      if(this.props.state.pet.age === 5) {
+        this.props.setPetAttributes( { stage: 2 } );
+      }
+
+      if(this.props.state.pet.age === 10) {
+        this.props.setPetAttributes( {stage: 3} );
+      }
+    }
+  }
+
+  doHealthInterval = () => {
+    if( (this.props.state.pet) && (Object.keys(this.props.state.pet).length > 0) && (this.props.state.pet.hunger < 4) && (this.props.state.pet.health > 0) ) {
+      this.props.setPetAttributes( {health: this.props.state.pet.health - 1})
+    }
+  }
+
+  doFunInterval = () => {
+    if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
+      var numToSubtract = 0;
+
+      if( this.props.state.pet.happiness > 0) {
+        numToSubtract = 1;
+      }
+
+      if((this.props.state.pet.hunger <= 3) && (this.props.state.pet.happiness > 1)) {
+        numToSubtract = 2; 
+      }
+
+      this.props.setPetAttributes( { happiness: this.props.state.pet.happiness - numToSubtract } );
+    }
+  }
+
+  doAgeInterval = () => {
+    if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
+      if(this.props.state.pet.age < 10) {
+        this.props.setPetAttributes({ age: this.props.state.pet.age + 1 } );
+      }
+    }
+  }
+
+  doHungerInterval = () => {
+    if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
+      if( this.props.state.pet.hunger > 0) {
+        this.props.setPetAttributes({hunger: this.props.state.pet.hunger - 1});
+      }
+    }
+  }
+
+  doDeathInterval = () => {
+    if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
+      if( this.props.state.pet.age >= 50 ) {
+        this.props.setPetAttributes({health:0})
+        // TODO: autosave here
+      }
+    }
+  }
+
+
+
+  componentWillUnmount() {
+    clearInterval(this.healthInterval);
+    clearInterval(this.funInterval);
+    clearInterval(this.ageInterval);
+    clearInterval(this.hungerInterval);
+    clearInterval(this.deathInterval);
+  }
+
+
+
+
   componentDidMount() {
     const autoSave = setInterval(()=>{console.log('save');this.props.save(this.state.username, this.props.state.money)}, 20000)
     this
@@ -57,6 +139,7 @@ class Home extends React.Component {
                     .then(
                       () => {
                         this.props.fetchMoney(this.state.username)
+                        .then( () => this.setupIntervals() );
                       }
                     )
                     .then(autoSave)
