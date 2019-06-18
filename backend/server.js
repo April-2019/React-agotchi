@@ -521,7 +521,6 @@ app.patch('/users/:name', async (req,res) => {
   });
 });
 
-
 // Update a pet
 // Request format:
 // headers: {"Content-Type":"application/json"}
