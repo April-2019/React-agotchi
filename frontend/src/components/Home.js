@@ -53,6 +53,8 @@ class Home extends React.Component {
   }
 
   render() {
+    const coinUrl = require(`../images/coin.png`)
+
     document
       .body
       .setAttribute('class', 'home_background')
@@ -107,6 +109,7 @@ class Home extends React.Component {
         {this.props.pet?<Card>
           <label>{this.props.pet.name}</label>
           <label>Age: {this.props.pet.age}</label>
+          <label><img className='coin' src={coinUrl}></img></label>
           <lable>Health</lable>
           <Progress percent={this.props.pet.health*10} color='red'/>
           <label>Hunger</label>
