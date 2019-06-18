@@ -16,7 +16,9 @@ class Login extends React.Component {
     let password = document.querySelector("#formLoginPassword").value;
     e.target.reset();
     this.props.login(username,password,
-      () => this.props.history.push("/home") );
+      () => {
+        this.props.history.push("/home");
+      } );
   }
 
 
