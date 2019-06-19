@@ -6,4 +6,21 @@
     border-radius: 16px
 }
 
+.grave{
+    background-image: url('../images/graveyard.gif');
+    background-size: cover
+}
+
+.gravecard{
+    display: inline-block;
+    border: solid 5px black;
+    bottom: 0;
+    margin: 17px
+}
+
+.lawn{
+    bottom: 0;
+    position: absolute
+}
+
 
