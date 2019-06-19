@@ -94,7 +94,7 @@ export default class Hatch extends Component{
         pikachu: this.pikachu,
         charmander: this.charmander,
         sylveon: this.sylveon,
-        syther: this.syther,
+        scyther: this.scyther,
         poplio: this.poplio
     }
 
