@@ -44,11 +44,35 @@ export default class Graveyard extends React.Component {
     document
     .body
     .setAttribute('class', 'grave')
-    return ( <div>
+    return ( 
+    this.state.deadPets?<div>
     <div>
-      <button onClick={this.handleLogoutClick}>Logout</button>
-      <button onClick={() => this.props.history.push("/home")}>Home</button>
-      <button onClick={() => this.props.history.push("/store")}>Store</button>
+    <div
+          className="ui grey vertical animated large button"
+          tabIndex="0" onClick={this.handleLogoutClick}>
+          <div className="hidden content">Logout</div>
+          <div className="visible content">
+            <i className="log out icon"></i>
+          </div>
+        </div>
+        
+        <div
+          className="ui grey vertical animated large button"
+          tabIndex="0" onClick={() => this.props.history.push("/home")}>
+          <div className="hidden content">Home</div>
+          <div className="visible content">
+            <i className="home icon"></i>
+          </div>
+        </div>
+
+        <div
+          className="ui grey vertical animated large button"
+          tabIndex="0" onClick={() => this.props.history.push("/store")}>
+          <div className="hidden content">Store</div>
+          <div className="visible content">
+            <i className="shopping cart icon"></i>
+          </div>
+        </div>
       </div>
       <div className="lawn">
       {
@@ -58,6 +82,6 @@ export default class Graveyard extends React.Component {
       }
       
       </div> 
-      </div>)
+      </div>:null)
   }
 }

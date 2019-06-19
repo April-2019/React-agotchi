@@ -247,7 +247,7 @@ class Home extends React.Component {
         <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => {this.props.history.push("/graveyard")}}>
           <div className="hidden content">Graveyard</div>
           <div className="visible content">
-            <i className="x icon"></i>
+            <i className="chess king icon"></i>
           </div>
         </div>
         :
