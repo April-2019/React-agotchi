@@ -1,0 +1,24 @@
+.name{
+    position: absolute;
+    left: 33%;
+    top: 28%;
+    border: 5px ridge brown;
+    border-radius: 40px 40px 0px 0px;
+    padding: 20px;
+    background: #CD9575;
+    font-family: cursive;
+    font: "Snell Roundhand"
+}
+
+.pet{
+    position: absolute;
+    min-height: 300px;
+    max-height: 300px;
+    left: 60%;
+    top: 40%
+
+}
+
+.h1{
+    font-family: cursive
+}
