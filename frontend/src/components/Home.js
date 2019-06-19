@@ -130,22 +130,22 @@ class Home extends React.Component {
       .props
       .loggedIn((username) => {
         this.setState({username:username});
-        this.props.fetchCurrentPet(this.state.username)
+        this.props.fetchCurrentPet(username)
         .then(() => {this.setState({
           stillloading: false
         })})
         .then(
           () => {
-            this.props.fetchApples(this.state.username)
+            this.props.fetchApples(username)
             .then(
               () => {
-                this.props.fetchToys(this.state.username)
+                this.props.fetchToys(username)
                 .then(
                   () => {
-                    this.props.fetchMedicine(this.state.username)
+                    this.props.fetchMedicine(username)
                     .then(
                       () => {
-                        this.props.fetchMoney(this.state.username)
+                        this.props.fetchMoney(username)
                         .then( () => this.setupIntervals() );
                       }
                     )
@@ -237,6 +237,17 @@ class Home extends React.Component {
           <div className="hidden content">Walk</div>
           <div className="visible content">
             <i className="map outline icon"></i>
+          </div>
+        </div>
+        :
+        null}
+
+        {(this.props.pet && !this.state.stillloading)
+         ?
+        <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => {this.props.history.push("/graveyard")}}>
+          <div className="hidden content">Graveyard</div>
+          <div className="visible content">
+            <i className="x icon"></i>
           </div>
         </div>
         :
