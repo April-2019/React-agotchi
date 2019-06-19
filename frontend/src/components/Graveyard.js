@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import Register from './Register'
 import Grave from './Grave'
 import constants from '../constants'
+import './some.css'
 
 export default class Graveyard extends React.Component {
 
@@ -39,17 +40,24 @@ export default class Graveyard extends React.Component {
   }
 
   render() {
+
+    document
+    .body
+    .setAttribute('class', 'grave')
     return ( <div>
+    <div>
       <button onClick={this.handleLogoutClick}>Logout</button>
       <button onClick={() => this.props.history.push("/home")}>Home</button>
       <button onClick={() => this.props.history.push("/store")}>Store</button>
-      
+      </div>
+      <div className="lawn">
       {
         this.state.deadPets.map(
           pet => <Grave pet={pet} />
         )
       }
       
-      </div> )
+      </div> 
+      </div>)
   }
 }
