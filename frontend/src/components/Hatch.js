@@ -17,7 +17,7 @@ export default class Hatch extends Component{
         this.props.loggedIn(
             (username) => {
                 this.setState({username:username});
-                this.props.fetchCurrentPet(this.state.username)
+                this.props.fetchCurrentPet(username)
                 .then(
                     () => {
                         if(!!this.props.pet) {
