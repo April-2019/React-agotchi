@@ -25,7 +25,7 @@ export default class Store extends React.Component {
 
 
   backHome = () => {
-    this.props.updateMoney(this.state.username, this.props.state.money)
+    this.props.updateMoney(this.state.username, this.props.user.money)
     .then( () => {
       // this.setState({
       //   username:""
@@ -44,21 +44,21 @@ export default class Store extends React.Component {
       <button className="positive ui button" onClick={() => this.props.buyToy(this.state.username)}>Buy Toy</button>
       <button className="positive ui button" onClick={() => this.props.buyMedicine(this.state.username)}>Buy Medicine</button>
       <Statistic>
-        <Statistic.Value>{this.props.state.money}</Statistic.Value>
+        <Statistic.Value>{this.props.user.money}</Statistic.Value>
         <Statistic.Label>Coin(s)</Statistic.Label>
       </Statistic>
       <Card>
       <Statistic.Group size='tiny'>
         <Statistic>
-        <Statistic.Value>{this.props.state.apple}</Statistic.Value>
+        <Statistic.Value>{this.props.user.food}</Statistic.Value>
         <Statistic.Label>Apple(s)</Statistic.Label>
       </Statistic>
       <Statistic>
-        <Statistic.Value>{this.props.state.medicine}</Statistic.Value>
+        <Statistic.Value>{this.props.user.medicine}</Statistic.Value>
         <Statistic.Label>Potion(s)</Statistic.Label>
       </Statistic>
       <Statistic>
-        <Statistic.Value>{this.props.state.toys}</Statistic.Value>
+        <Statistic.Value>{this.props.user.toys}</Statistic.Value>
         <Statistic.Label>Toy(s)</Statistic.Label>
       </Statistic>
     </Statistic.Group>

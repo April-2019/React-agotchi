@@ -3,6 +3,8 @@ import { Button, Dropdown,Card,Progress, Statistic } from 'semantic-ui-react'
 import Pet from './pet/Pet'
 import './some.css'
 
+import { connect } from 'react-redux';
+
 class Home extends React.Component {
 
   
@@ -26,7 +28,7 @@ class Home extends React.Component {
         var curPos = parseInt(this.state.petStyle.left.split("p")[0])
         this.setState({petStyle:{"position":"absolute","left":`${curPos+1}px`,"top":`200px`}});
         if(Math.random() < 0.0075) {
-          this.props.setMoney(this.props.state.money+2);
+          this.props.setMoney(this.props.user.money+2);
         }
       },10
     );
@@ -45,15 +47,15 @@ class Home extends React.Component {
   doPetUpdateInterval = () => {
     this.m++
 
-    if( this.props.state.pet && (Object.keys(this.props.state.pet).length > 0) ) {
+    if( this.props.pet && (Object.keys(this.props.pet).length > 0) ) {
 
       var arbitraryNumber = 3;
       var attributeChanged = false;
-      var newHealth = this.props.state.pet.health;
-      var newHappiness = this.props.state.pet.happiness;
-      var newAge = this.props.state.pet.age;
-      var newHunger = this.props.state.pet.hunger;
-      var newStage = this.props.state.pet.stage;
+      var newHealth = this.props.pet.health;
+      var newHappiness = this.props.pet.happiness;
+      var newAge = this.props.pet.age;
+      var newHunger = this.props.pet.hunger;
+      var newStage = this.props.pet.stage;
 
       if( (this.m%arbitraryNumber === 0) && ( newHunger > 0 ) ) {
         newHunger--;
@@ -109,7 +111,7 @@ class Home extends React.Component {
           stage: newStage
         }, 
           () => {
-            this.props.save(this.state.username, this.props.state.money);
+            this.props.save(this.state.username, this.props.user.money);
         });
       }
     }
@@ -172,6 +174,10 @@ class Home extends React.Component {
     .then(() => this.props.history.push("/store"))
   }
 
+  hasPet = () => {
+    return !this.state.stillloading && (this.props.pet.type !== "")
+  }
+
   render() {
     const coinUrl = require(`../images/coin.png`)
     document
@@ -180,7 +186,7 @@ class Home extends React.Component {
       
     return (
       <React.Fragment>
-        {(this.props.pet && !this.state.stillloading)
+        {(this.hasPet() && !this.state.stillloading)
         ?
         <div
           className="ui pink vertical animated large button"
@@ -193,7 +199,7 @@ class Home extends React.Component {
         :
         null}
 
-        {(this.props.pet && !this.state.stillloading)
+        {(this.hasPet() && !this.state.stillloading)
         ?
         <div
           className="ui pink vertical animated large button"
@@ -208,7 +214,7 @@ class Home extends React.Component {
         null}
 
 
-        {(this.props.pet && !this.state.stillloading)
+        {(this.hasPet() && !this.state.stillloading)
         ?
         <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => this.props.deleteMedicine(this.state.username)}>
           <div className="hidden content">Medicine</div>
@@ -220,7 +226,7 @@ class Home extends React.Component {
         null}
 
 
-        {(this.props.pet && !this.state.stillloading)
+        {(this.hasPet() && !this.state.stillloading)
         ?
         <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => this.props.deleteToy(this.state.username)}>
           <div className="hidden content">Play</div>
@@ -231,7 +237,7 @@ class Home extends React.Component {
         :
         null}
  
-        {(this.props.pet && !this.state.stillloading)
+        {(this.hasPet() && !this.state.stillloading)
          ?
         <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => {this.walkPet()}}>
           <div className="hidden content">Walk</div>
@@ -242,7 +248,7 @@ class Home extends React.Component {
         :
         null}
 
-        {(this.props.pet && !this.state.stillloading)
+        {(this.hasPet() && !this.state.stillloading)
          ?
         <div className="ui pink vertical animated large button" tabIndex="0" onClick={() => {this.props.history.push("/graveyard")}}>
           <div className="hidden content">Graveyard</div>
@@ -254,16 +260,16 @@ class Home extends React.Component {
         null}
 
 <Button.Group className='btns'>
-    <Button positive onClick={() => this.props.save(this.state.username, this.props.state.money)}>Save</Button>
+    <Button positive onClick={() => this.props.save(this.state.username, this.props.user.money)}>Save</Button>
     <Button.Or />
     <Button color='red' onClick={() => this.handleLogoutClick()}>Logout</Button>
   </Button.Group>
         
 
         <div>
-          {(this.props.pet && !this.state.stillloading) ? <Pet style={this.state.petStyle} pet={this.props.pet} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
+          {(this.hasPet() && !this.state.stillloading) ? <Pet pet={this.props.pet} style={this.state.petStyle} /> : <Button color='pink' className="redirect" onClick={this.redirectToHatch} >Let's hatch your new best friend!</Button>}
         </div>
-        {this.props.pet?<Card>
+        {this.hasPet()?<Card>
           <label>{this.props.pet.name}</label>
           <label>Age: {this.props.pet.age}</label>
           <label>Health: {this.props.pet.health}</label>
@@ -274,24 +280,24 @@ class Home extends React.Component {
           <Progress percent={this.props.pet.happiness*10} color='blue'/>
         </Card>:null}
 
-        {(this.props.pet && !this.state.stillloading)
+        {(this.hasPet() && !this.state.stillloading)
         ?
         <Card>
         <Statistic>
-        <Statistic.Value>{this.props.state.money}</Statistic.Value>
+        <Statistic.Value>{this.props.user.money}</Statistic.Value>
         <Statistic.Label><img src={coinUrl} className="coin" /></Statistic.Label>
       </Statistic>
         <Statistic.Group size='tiny'>
         <Statistic>
-        <Statistic.Value>{this.props.state.apple}</Statistic.Value>
+        <Statistic.Value>{this.props.user.food}</Statistic.Value>
         <Statistic.Label>Apple(s)</Statistic.Label>
       </Statistic>
       <Statistic>
-        <Statistic.Value>{this.props.state.medicine}</Statistic.Value>
+        <Statistic.Value>{this.props.user.medicine}</Statistic.Value>
         <Statistic.Label>Potion(s)</Statistic.Label>
       </Statistic>
       <Statistic>
-        <Statistic.Value>{this.props.state.toys}</Statistic.Value>
+        <Statistic.Value>{this.props.user.toys}</Statistic.Value>
         <Statistic.Label>Toys</Statistic.Label>
       </Statistic>
     </Statistic.Group>
@@ -303,4 +309,38 @@ class Home extends React.Component {
   }
 }
 
-export default Home
+const mapStateToProps = state => {
+  return {
+    pet: state.pet,
+    user: state.user
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    setName: name => dispatch({type:"SET_NAME",name}),
+    addMoney: (change) => dispatch({type:"ADD_MONEY",change}),
+    subtractMoney: (change) => dispatch({type:"SUBTRACT_MONEY",change}),
+    addToys: (change) => dispatch({type:"ADD_TOYS",change}),
+    subtractToys: (change) => dispatch({type:"SUBTRACT_TOYS",change}),
+    addFood: (change) => dispatch({type:"ADD_FOOD",change}),
+    subtractFood: (change) => dispatch({type:"SUBTRACT_FOOD",change}),
+    addMedicine: (change) => dispatch({type:"ADD_MEDICINE",change}),
+    subtractMedicine: (change) => dispatch({type:"SUBTRACT_MEDICINE",change}),
+    addHealth: (change) => dispatch({type:"ADD_HEALTH",change}),
+    subtractHealth: (change) => dispatch({type:"SUBTRACT_HEALTH",change}),
+    addHappiness: (change) => dispatch({type:"ADD_HAPPINESS",change}),
+    subtractHappiness: (change) => dispatch({type:"SUBTRACT_HAPPINESS",change}),
+    addHunger: (change) => dispatch({type:"ADD_HUNGER",change}),
+    subtractHunger: (change) => dispatch({type:"SUBTRACT_HUNGER",change}),
+    addAge: (change) => dispatch({type:"ADD_AGE",change}),
+    addStage: (change) => dispatch({type:"ADD_STAGE",change}),
+    setType: (pokemonType) => dispatch({type:"SET_TYPE",pokemonType}),
+    setEpitaph: (epitaph) => dispatch({type:"SET_EPITAPH",epitaph}),
+    setPetId: (id) => dispatch({type:"SET_PET_ID",id}),
+    resetUser: () => dispatch({type:"RESET_USER"}),
+    resetPet: () => dispatch({type:"RESET_PET"})
+  };
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(Home)

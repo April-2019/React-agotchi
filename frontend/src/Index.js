@@ -4,9 +4,14 @@ import './index.css';
 import App from './App';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import 'semantic-ui-css/semantic.min.css'
+import {createStore} from 'redux';
+import {Provider} from 'react-redux';
+import rootReducer from './reducers/index'
 // import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App className="test" />, document.getElementById('root'));
+const store = createStore(rootReducer);
+
+ReactDOM.render(<Provider store={store}><App className="test" /></Provider>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

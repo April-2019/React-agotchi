@@ -10,22 +10,16 @@ import 'semantic-ui-css/semantic.min.css'
 import {Message} from 'semantic-ui-react'
 import {Container} from 'react-bootstrap'
 import constants from './constants'
-export default class App extends React.Component {
+import { connect } from 'react-redux';
 
+class App extends React.Component {
 
-    state = {
-        apple: 0,
-        medicine: 0,
-        toys: 0,
-        money: 0,
-        pet: {}
-      }
   
   componentDidMount() {
   }
 
     buyApple = (username) => {
-        if(this.state.money < 4) {
+        if(this.props.user.money < 4) {
           alert("Not enough money")
           return
         }
@@ -46,11 +40,14 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(() => this.setState({money: this.state.money-4, apple: this.state.apple+1}))
+        .then(() => {
+          this.props.subtractMoney(4)
+          this.props.addFood(1)
+        })
       }
     
       buyToy = (username) => {
-        if(this.state.money < 8) {
+        if(this.props.user.money < 8) {
           alert("Not enough money")
           return
         }
@@ -70,11 +67,14 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(() => this.setState({money: this.state.money-8,toys:this.state.toys+1}))
+        .then(() => {
+          this.props.subtractMoney(8);
+          this.props.addToys(1)
+        })
       }
     
       buyMedicine = (username) => {
-        if(this.state.money < 15) {
+        if(this.props.user.money < 15) {
           alert("Not enough money")
           return
         }
@@ -94,7 +94,10 @@ export default class App extends React.Component {
               }
             })
         })
-        .then(() => this.setState({money: this.state.money-15,medicine:this.state.medicine+1}))
+        .then(() => {
+          this.props.subtractMoney(15);
+          this.props.addMedicine(1);
+        })
       }
 
   fetchUser = (username) => {
@@ -105,7 +108,9 @@ export default class App extends React.Component {
         ).then(res=>res.json())
         .then(
             user => {
-                    this.setState({money: user.money})
+                    this.props.resetUser();
+                    this.props.setName(username);
+                    this.props.addMoney(user.money);
             }
         )
       }
@@ -119,7 +124,8 @@ export default class App extends React.Component {
         .then(
             foods => {
                 let num = foods.filter(food => food.name === 'apple').length
-                          this.setState({apple: num})
+                this.props.subtractFood(this.props.user.food);
+                this.props.addFood(num);
             }
         )
       }
@@ -133,7 +139,9 @@ export default class App extends React.Component {
         .then(
             toys => {
               let num = toys.filter(toy => toy.name === 'toy').length
-              this.setState({toys: num})}
+              this.props.subtractToys(this.props.user.toys);
+              this.props.addToys(num);
+            }
           );
     }
 
@@ -146,7 +154,9 @@ export default class App extends React.Component {
         .then(
             healths => {
                   let num = healths.filter(medicine => medicine.name === 'Potion').length
-                  this.setState({medicine: num})}
+                  this.props.subtractMedicine(this.props.user.medicine);
+                  this.props.addMedicine(num);
+                }
         )
       }
 
@@ -158,7 +168,18 @@ export default class App extends React.Component {
         .then(
             pets => {
               let currentPet = pets.find( pet => (pet.health > 0))
-                this.setState({pet: currentPet});
+              this.props.resetPet();
+              if(currentPet) {
+                this.props.addHealth(currentPet.health);
+                this.props.addHappiness(currentPet.happiness);
+                this.props.addHunger(currentPet.hunger);
+                this.props.addAge(currentPet.age);
+                this.props.addStage(currentPet.stage);
+                this.props.setType(currentPet.type);
+                this.props.setEpitaph(currentPet.epitaph);
+                this.props.setPetId(currentPet.id);
+                this.props.setPetName(currentPet.name);
+              }
             }
         )
     }
@@ -176,7 +197,7 @@ export default class App extends React.Component {
 
     
     updatePet = (username) => {
-      return fetch(`${constants.apiUrl}/pets/${this.state.pet.id}`, {
+      return fetch(`${constants.apiUrl}/pets/${this.props.pet.id}`, {
         method: 'PATCH',
         headers: {
             "Content-Type":"application/json",
@@ -185,7 +206,7 @@ export default class App extends React.Component {
         body: JSON.stringify(
           {
             name: username,
-            data: this.state.pet
+            data: this.props.pet
           })
       })
     }
@@ -206,13 +227,8 @@ export default class App extends React.Component {
                "Authorization":`Bearer ${localStorage.getItem("token")}`}}
             ).then(
               () => {
-                this.setState({
-                  apple:this.state.apple-1,
-                  pet: {
-                    ...this.state.pet,
-                    hunger:this.state.pet.hunger<10?this.state.pet.hunger+1:10
-                  }
-                })
+                this.props.subtractFood(1);
+                this.props.addHunger(1);
               }
             )
           } else {alert('You need more food!')}
@@ -236,14 +252,9 @@ export default class App extends React.Component {
                "Authorization":`Bearer ${localStorage.getItem("token")}`}}
             ).then(
               () => {
-                this.setState({
-                  medicine:this.state.medicine-1,
-                  pet:{
-                    ...this.state.pet,
-                    health: this.state.pet.health+2>10?10:this.state.pet.health+2,
-                    happiness: this.state.pet.happiness>2?this.state.pet.happiness-2:0
-                  }
-                })
+                this.props.subtractMedicine(1);
+                this.props.addHealth(2);
+                this.props.subtractHappiness(2);
               }
             )
           }
@@ -267,15 +278,16 @@ export default class App extends React.Component {
                "Authorization":`Bearer ${localStorage.getItem("token")}`}}
             ).then(
               () => {
-                this.setState({
-                  toys:this.state.toys-1,
-                  pet: {
-                    ...this.state.pet,
-                    hunger:this.state.pet.hunger>0?this.state.pet.hunger-1:0,
-                    happiness: (this.state.pet.hunger<2)&&(this.state.pet.happiness>0)&&(this.state.pet.happiness<10)?this.state.pet.happiness-1:this.state.pet.happiness+1,
-                    health: this.random(5)&&this.state.health>0?this.state.pet.health-1:this.state.pet.health
-                  }
-                })
+                this.props.subtractToys(1);
+                this.props.subtractHunger(1);
+                if(this.props.pet.hunger < 2) {
+                  this.props.subtractHappiness(1)
+                } else {
+                  this.props.addHappiness(1)
+                }
+                if(this.random(5)) {
+                  this.props.subtractHealth(1)
+                }
               }
             )
           } else {alert('You need more toys!')}
@@ -326,20 +338,35 @@ export default class App extends React.Component {
           "Authorization":`Bearer ${localStorage.getItem("token")}`}} )
       .then(res=>res.json())
       .then(
-        data => this.setState({money:data.money})
+        data => {
+          this.props.subtractMoney(this.props.user.money);
+          this.props.addMoney(data.money);
+        }
       )
     }
 
     setMoney = (money) => {
-      this.setState({money:money});
+      this.props.subtractMoney(this.props.user.money);
+      this.props.addMoney(money);
     }
 
     setPetAttributes = (petAttributes,callback) => {
-      this.setState({pet: {...this.state.pet, ...petAttributes}},callback)
+      var newPet = {...this.props.pet, ...petAttributes}
+      this.props.resetPet();
+      this.props.addHealth(newPet.health);
+      this.props.addHappiness(newPet.happiness);
+      this.props.addHunger(newPet.hunger);
+      this.props.addAge(newPet.age);
+      this.props.addStage(newPet.stage);
+      this.props.setType(newPet.type);
+      this.props.setEpitaph(newPet.epitaph);
+      this.props.setPetId(newPet.id);
+      this.props.setPetName(newPet.name);
+      callback();
     }
 
     save = (username, money) => {
-      if( this.state.pet && (Object.keys(this.state.pet).length > 0) ) {
+      if( this.props.pet && (Object.keys(this.props.pet).length > 0) ) {
         this.updatePet(username)
         this.updateMoney(username, money)
       }
@@ -348,22 +375,10 @@ export default class App extends React.Component {
     logOut = () => {
       // fetchPet with 'PATCH' based on this.state.pet
         localStorage.setItem("token","");
-        this.setState({
-            apple: 0,
-            medicine: 0,
-            toys: 0,
-            money: 0,
-            pet: {}
-        })
+        this.props.resetUser();
+        this.props.resetPet();
     }
 
-    
-
-  // redirectToHatch = () => {
-  //   this.props.history
-  // }
-
-  
 
     
 
@@ -372,11 +387,48 @@ export default class App extends React.Component {
             <Router>
                 <Route exact path="/" render={(props) => <Login {...props} loggedIn={this.loggedIn} login={this.login} setMoney={this.setMoney} logOut={this.logOut} />} />
                 <Route exact path="/register" render={(props) => <Register {...props} loggedIn={this.loggedIn} login={this.login} logOut={this.logOut} />} />
-                <Route exact path="/home" render={(props) => <Home {...props} state={this.state} setPetAttributes={this.setPetAttributes} fetchMoney={this.fetchMoney} setMoney={this.setMoney} fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine} pet={this.state.pet}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} deleteApple={this.deleteApple} deleteMedicine={this.deleteMedicine} deleteToy={this.deleteToy} updatePet={this.updatePet} save={this.save}/>} />
-                <Route exact path="/store" render={(props) => <Store {...props} state={this.state} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyMedicine={this.buyMedicine} updateMoney={this.updateMoney} />}  />
+                <Route exact path="/home" render={(props) => <Home {...props}  setPetAttributes={this.setPetAttributes} fetchMoney={this.fetchMoney} setMoney={this.setMoney} fetchApples={this.fetchApples} fetchToys={this.fetchToys} fetchMedicine={this.fetchMedicine}  fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} deleteApple={this.deleteApple} deleteMedicine={this.deleteMedicine} deleteToy={this.deleteToy} updatePet={this.updatePet} save={this.save}/>} />
+                <Route exact path="/store" render={(props) => <Store {...props} user={this.props.user} loggedIn={this.loggedIn} logOut={this.logOut} buyApple={this.buyApple} buyToy={this.buyToy} buyMedicine={this.buyMedicine} updateMoney={this.updateMoney} />}  />
                 <Route exact path="/graveyard" render={(props) => <Graveyard {...props} loggedIn={this.loggedIn} logOut={this.logOut} /> } />
-                <Route exact path="/hatch" render={(props) => <Hatch {...props} pet={this.state.pet} fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} />} />
+                <Route exact path="/hatch" render={(props) => <Hatch {...props} fetchCurrentPet={this.fetchCurrentPet} loggedIn={this.loggedIn} logOut={this.logOut} />} />
             </Router>
         );
     }
 }
+
+const mapStateToProps = state => {
+  return {
+    pet: state.pet,
+    user: state.user
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    setName: name => dispatch({type:"SET_NAME",name}),
+    addMoney: (change) => dispatch({type:"ADD_MONEY",change}),
+    subtractMoney: (change) => dispatch({type:"SUBTRACT_MONEY",change}),
+    addToys: (change) => dispatch({type:"ADD_TOYS",change}),
+    subtractToys: (change) => dispatch({type:"SUBTRACT_TOYS",change}),
+    addFood: (change) => dispatch({type:"ADD_FOOD",change}),
+    subtractFood: (change) => dispatch({type:"SUBTRACT_FOOD",change}),
+    addMedicine: (change) => dispatch({type:"ADD_MEDICINE",change}),
+    subtractMedicine: (change) => dispatch({type:"SUBTRACT_MEDICINE",change}),
+    addHealth: (change) => dispatch({type:"ADD_HEALTH",change}),
+    subtractHealth: (change) => dispatch({type:"SUBTRACT_HEALTH",change}),
+    addHappiness: (change) => dispatch({type:"ADD_HAPPINESS",change}),
+    subtractHappiness: (change) => dispatch({type:"SUBTRACT_HAPPINESS",change}),
+    addHunger: (change) => dispatch({type:"ADD_HUNGER",change}),
+    subtractHunger: (change) => dispatch({type:"SUBTRACT_HUNGER",change}),
+    addAge: (change) => dispatch({type:"ADD_AGE",change}),
+    addStage: (change) => dispatch({type:"ADD_STAGE",change}),
+    setType: (pokemonType) => dispatch({type:"SET_TYPE",pokemonType}),
+    setEpitaph: (epitaph) => dispatch({type:"SET_EPITAPH",epitaph}),
+    setPetId: (id) => dispatch({type:"SET_PET_ID",id}),
+    setPetName: (name) => dispatch({type:"SET_PET_NAME",name}),
+    resetUser: () => dispatch({type:"RESET_USER"}),
+    resetPet: () => dispatch({type:"RESET_PET"})
+  };
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(App)
